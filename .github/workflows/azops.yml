@@ -23,6 +23,8 @@ jobs:
     name: Push
     runs-on: ubuntu-latest
     steps:
+      - name: Workflow Trigger
+        run: echo 'Triggered by secrets.PR_AUTO_TRIGGER == true'
       - name: Actions checkout
         uses: actions/checkout@v2
       - name: GitHub context
@@ -52,6 +54,8 @@ jobs:
     name: Push
     runs-on: ubuntu-latest
     steps:
+      - name: Workflow Trigger
+        run: echo 'Triggered by contains(github.event.review.body, 'LGTM')'
       - name: Actions checkout
         uses: actions/checkout@v2
       - name: GitHub context
