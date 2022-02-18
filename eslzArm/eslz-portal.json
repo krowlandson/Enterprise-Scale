@@ -112,7 +112,7 @@
                     ]
                 },
                 {
-                    "name": "esGoalState",
+                    "name": "esMgmtGoalState",
                     "label": "Platform management, security, and governance",
                     "subLabel": {
                         "preValidation": "",
@@ -141,11 +141,48 @@
                             }
                         },
                         {
+                            "name": "esMgmtOptions",
+                            "type": "Microsoft.Common.OptionsGroup",
+                            "label": "Deploy management solution",
+                            "defaultValue": "No",
+                            "toolTip": "Select the preferred logging option for management. If third-party logging is a requirement, you should deploy this into the management subscription post the deployment.",
+                            "constraints": {
+                                "allowedValues": [
+                                    {
+                                        "label": "Azure native logging (Log Analytics workspace)",
+                                        "value": "Native"
+                                    },
+									{
+                                        "label": "3rd party logging (External log storage)",
+                                        "value": "3rdParty"
+                                    },
+									{
+										"label": "No",
+										"value": "No"
+									}
+                                ]
+                            },
+                            "visible": true
+                        },
+						{
+							"name": "esMgmtSubSection",
+							"type": "Microsoft.Common.Section",
+							"label": "Management subscription",
+							"elements": [
+								{
+									"type":"Microsoft.Common.SubscriptionSelector",
+									"name": "esMgmtSub",
+									"label": "Management subscription"
+								}
+							],
+							"visible": "[and(not(equals(steps('esMgmtGoalState').esMgmtOptions, 'No')), not(equals(steps('lzSettings').subOrgsOption, 'Single')))]"
+            			},
+                        {
                             "name": "esLogAnalytics",
                             "type": "Microsoft.Common.OptionsGroup",
                             "label": "Deploy Log Analytics workspace and enable monitoring for your platform and resources",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continious compliance.",
+                            "defaultValue": "[if(equals(steps('esMgmtGoalState').esMgmtOptions, 'Native')), 'Yes (recommended)', 'No')]",
+                            "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance.",
                             "constraints": {
                                 "allowedValues": [
                                     {
@@ -158,7 +195,7 @@
                                     }
                                 ]
                             },
-                            "visible": true
+                            "visible": "[not(equals(steps('esMgmtGoalState').esMgmtOptions, 'No'))]"
                         },
                         {
                             "name": "esLogRetention",
@@ -173,25 +210,12 @@
                             "constraints": {
                                 "required": false
                             },
-                            "visible": "[equals(steps('esGoalState').esLogAnalytics,'Yes')]"
+                            "visible": "[equals(steps('esMgmtGoalState').esLogAnalytics,'Yes')]"
                         },
-						{
-							"name": "esMgmtSubSection",
-							"type": "Microsoft.Common.Section",
-							"label": "Management subscription",
-							"elements": [
-								{
-									"type":"Microsoft.Common.SubscriptionSelector",
-									"name": "esMgmtSub",
-									"label": "Management subscription"
-								}
-							],
-							"visible": "[and(equals(steps('esGoalState').esLogAnalytics, 'Yes'), not(equals(steps('lzSettings').subOrgsOption, 'Single')))]"
-            			},
                         {
                             "name": "monitoring",
                             "type": "Microsoft.Common.TextBlock",
-                            "visible": "[equals(steps('esGoalState').esLogAnalytics,'Yes')]",
+                            "visible": "[equals(steps('esMgmtGoalState').esLogAnalytics,'Yes')]",
                             "options": {
                                 "text": "Select which Azure Monitor solutions you will enable for your Log Analytics workspace",
                                 "link": {
@@ -218,7 +242,7 @@
                                     }
                                 ]
                             },
-                            "visible": "[equals(steps('esGoalState').esLogAnalytics,'Yes')]"
+                            "visible": "[equals(steps('esMgmtGoalState').esLogAnalytics,'Yes')]"
                         },
                         {
                             "name": "esChangeTracking",
@@ -238,7 +262,7 @@
                                     }
                                 ]
                             },
-                            "visible": "[equals(steps('esGoalState').esLogAnalytics,'Yes')]"
+                            "visible": "[equals(steps('esMgmtGoalState').esLogAnalytics,'Yes')]"
                         },
                         {
                             "name": "esUpdateMgmt",
@@ -258,7 +282,7 @@
                                     }
                                 ]
                             },
-                            "visible": "[equals(steps('esGoalState').esLogAnalytics,'Yes')]"
+                            "visible": "[equals(steps('esMgmtGoalState').esLogAnalytics,'Yes')]"
                         },
                         {
                             "name": "esActivityLog",
@@ -278,7 +302,7 @@
                                     }
                                 ]
                             },
-                            "visible": "[equals(steps('esGoalState').esLogAnalytics,'Yes')]"
+                            "visible": "[equals(steps('esMgmtGoalState').esLogAnalytics,'Yes')]"
                         },
                         {
                             "name": "esVmInsights",
@@ -298,7 +322,7 @@
                                     }
                                 ]
                             },
-                            "visible": "[equals(steps('esGoalState').esLogAnalytics,'Yes')]"
+                            "visible": "[equals(steps('esMgmtGoalState').esLogAnalytics,'Yes')]"
                         },
                         {
                             "name": "esServiceMap",
@@ -318,7 +342,7 @@
                                     }
                                 ]
                             },
-                            "visible": "[equals(steps('esGoalState').esLogAnalytics,'Yes')]"
+                            "visible": "[equals(steps('esMgmtGoalState').esLogAnalytics,'Yes')]"
                         },
                         {
                             "name": "esSqlAssessment",
@@ -338,12 +362,12 @@
                                     }
                                 ]
                             },
-                            "visible": "[equals(steps('esGoalState').esLogAnalytics,'Yes')]"
+                            "visible": "[equals(steps('esMgmtGoalState').esLogAnalytics,'Yes')]"
                         },
                         {
                             "name": "textBlock0",
                             "type": "Microsoft.Common.TextBlock",
-                            "visible": "[equals(steps('esGoalState').esLogAnalytics,'Yes')]",
+                            "visible": "[equals(steps('esMgmtGoalState').esLogAnalytics,'Yes')]",
                             "options": {
                                 "text": "Select which Microsoft Defender for Cloud solutions you will enable.",
                                 "link": {
@@ -370,17 +394,17 @@
                                     }
                                 ]
                             },
-                            "visible": "[equals(steps('esGoalState').esLogAnalytics,'Yes')]"
+                            "visible": "[equals(steps('esMgmtGoalState').esLogAnalytics,'Yes')]"
                         },
                         {
                             "name": "esAscEmail",
                             "type": "Microsoft.Common.TextBox",
                             "label": "Microsoft Defender for Cloud Email Contact",
                             "toolTip": "Email address to get email notifications from Azure Security Center",
-                            "visible": "[equals(steps('esGoalState').esAsc,'Yes')]",
+                            "visible": "[equals(steps('esMgmtGoalState').esAsc,'Yes')]",
                             "defaultValue": "",
                             "constraints": {
-                                "required": "[equals(steps('esGoalState').esAsc,'Yes')]",
+                                "required": "[equals(steps('esMgmtGoalState').esAsc,'Yes')]",
                                 "regex": "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$",
                                 "validationMessage": "Please provide a valid email address"
                             }
@@ -391,7 +415,7 @@
                             "label": "Enable Microsoft Defender for Cloud for servers",
                             "defaultValue": "Yes (recommended)",
                             "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for all servers.",
-                            "visible": "[equals(steps('esGoalState').esAsc,'Yes')]",
+                            "visible": "[equals(steps('esMgmtGoalState').esAsc,'Yes')]",
                             "constraints": {
                                 "allowedValues": [
                                     {
@@ -411,7 +435,7 @@
                             "label": "Enable Microsoft Defender for Cloud for open-source relational databases",
                             "defaultValue": "Yes (recommended)",
                             "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for open-source relational databases.",
-                            "visible": "[equals(steps('esGoalState').esAsc,'Yes')]",
+                            "visible": "[equals(steps('esMgmtGoalState').esAsc,'Yes')]",
                             "constraints": {
                                 "allowedValues": [
                                     {
@@ -431,7 +455,7 @@
                             "label": "Enable Microsoft Defender for Cloud for AppServices",
                             "defaultValue": "Yes (recommended)",
                             "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for AppServices.",
-                            "visible": "[equals(steps('esGoalState').esAsc,'Yes')]",
+                            "visible": "[equals(steps('esMgmtGoalState').esAsc,'Yes')]",
                             "constraints": {
                                 "allowedValues": [
                                     {
@@ -451,7 +475,7 @@
                             "label": "Enable Microsoft Defender for Cloud for Storage",
                             "defaultValue": "Yes (recommended)",
                             "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for Storage.",
-                            "visible": "[equals(steps('esGoalState').esAsc,'Yes')]",
+                            "visible": "[equals(steps('esMgmtGoalState').esAsc,'Yes')]",
                             "constraints": {
                                 "allowedValues": [
                                     {
@@ -471,7 +495,7 @@
                             "label": "Enable Microsoft Defender for Cloud for Azure SQL Database",
                             "defaultValue": "Yes (recommended)",
                             "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for Azure SQL Database.",
-                            "visible": "[equals(steps('esGoalState').esAsc,'Yes')]",
+                            "visible": "[equals(steps('esMgmtGoalState').esAsc,'Yes')]",
                             "constraints": {
                                 "allowedValues": [
                                     {
@@ -491,7 +515,7 @@
                             "label": "Enable Microsoft Defender for Cloud for SQL servers on machines",
                             "defaultValue": "Yes (recommended)",
                             "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for SQL servers on machines.",
-                            "visible": "[equals(steps('esGoalState').esAsc,'Yes')]",
+                            "visible": "[equals(steps('esMgmtGoalState').esAsc,'Yes')]",
                             "constraints": {
                                 "allowedValues": [
                                     {
@@ -511,7 +535,7 @@
                             "label": "Enable Microsoft Defender for Cloud for Key Vault",
                             "defaultValue": "Yes (recommended)",
                             "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for Key Vault.",
-                            "visible": "[equals(steps('esGoalState').esAsc,'Yes')]",
+                            "visible": "[equals(steps('esMgmtGoalState').esAsc,'Yes')]",
                             "constraints": {
                                 "allowedValues": [
                                     {
@@ -531,7 +555,7 @@
                             "label": "Enable Microsoft Defender for Cloud for Azure Resource Manager",
                             "defaultValue": "Yes (recommended)",
                             "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for Resource Manager.",
-                            "visible": "[equals(steps('esGoalState').esAsc,'Yes')]",
+                            "visible": "[equals(steps('esMgmtGoalState').esAsc,'Yes')]",
                             "constraints": {
                                 "allowedValues": [
                                     {
@@ -551,7 +575,7 @@
                             "label": "Enable Microsoft Defender for Cloud for DNS",
                             "defaultValue": "Yes (recommended)",
                             "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for DNS.",
-                            "visible": "[equals(steps('esGoalState').esAsc,'Yes')]",
+                            "visible": "[equals(steps('esMgmtGoalState').esAsc,'Yes')]",
                             "constraints": {
                                 "allowedValues": [
                                     {
@@ -571,7 +595,7 @@
                             "label": "Enable Microsoft Defender for Cloud for Containers (Kubernetes and Container Registries)",
                             "defaultValue": "Yes (recommended)",
                             "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for Containers (Kubernetes and Container Registries).",
-                            "visible": "[equals(steps('esGoalState').esAsc,'Yes')]",
+                            "visible": "[equals(steps('esMgmtGoalState').esAsc,'Yes')]",
                             "constraints": {
                                 "allowedValues": [
                                     {
@@ -603,7 +627,7 @@
                                     }
                                 ]
                             },
-                            "visible": "[equals(steps('esGoalState').esLogAnalytics,'Yes')]"
+                            "visible": "[equals(steps('esMgmtGoalState').esLogAnalytics,'Yes')]"
                         }
                     ]
                 },
@@ -616,7 +640,7 @@
                         {
                             "name": "info",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[or(not(empty(steps('esGoalState').esMgmtSubSection.esMgmtSub)), not(empty(steps('lzSettings').esSingleSubSection.esSingleSub)))]",
+                            "visible": "[or(not(empty(steps('esMgmtGoalState').esMgmtSubSection.esMgmtSub)), not(empty(steps('lzSettings').esSingleSubSection.esSingleSub)))]",
                             "options": {
                                 "text": "Azure Landing Zones provides an integrated CICD pipeline via AzOps that can be used with either GitHub Actions or Azure DevOps pipelines.",
                                 "uri": "https://github.com/azure/azops-accelerator/wiki/introduction",
@@ -626,7 +650,7 @@
                         {
                             "name": "correction",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[and(equals(steps('esGoalState').esLogAnalytics, 'No'), not(equals(steps('lzSettings').subOrgsOption, 'Single')))]",
+                            "visible": "[and(equals(steps('esMgmtGoalState').esLogAnalytics, 'No'), not(equals(steps('lzSettings').subOrgsOption, 'Single')))]",
                             "options": {
                                 "text": "Azure Landing Zones provides an integrated CICD pipeline via AzOps that can be used with either GitHub Actions or Azure DevOps pipelines, but requires a dedicated subscription for platform management in the previous step. Please add a subscription or continue without setting up the CICD integration.",
                                 "uri": "https://github.com/azure/azops-accelerator/wiki/introduction",
@@ -652,7 +676,7 @@
                                 ],
                                 "required": true
                             },
-                            "visible": "[or(not(empty(steps('esGoalState').esMgmtSubSection.esMgmtSub)), not(empty(steps('lzSettings').esSingleSubSection.esSingleSub)))]"
+                            "visible": "[or(not(empty(steps('esMgmtGoalState').esMgmtSubSection.esMgmtSub)), not(empty(steps('lzSettings').esSingleSubSection.esSingleSub)))]"
                         },
                         {
                             "name": "Instructions",
@@ -2050,7 +2074,7 @@
                                     }
                                 ]
                             },
-                            "visible": "[equals(steps('esGoalState').esLogAnalytics,'Yes')]"
+                            "visible": "[equals(steps('esMgmtGoalState').esLogAnalytics,'Yes')]"
                         },
                         {
                             "name": "esVmssMonitoring",
@@ -2074,7 +2098,7 @@
                                     }
                                 ]
                             },
-                            "visible": "[equals(steps('esGoalState').esLogAnalytics,'Yes')]"
+                            "visible": "[equals(steps('esMgmtGoalState').esLogAnalytics,'Yes')]"
                         },
                         {
                             "name": "esAksPolicy",
@@ -2424,40 +2448,40 @@
                 "enableVpnGw": "[steps('esConnectivityGoalState').esVpnGw]",
                 "enableHub": "[steps('esConnectivityGoalState').esHub]",
                 "enableDdoS": "[steps('esConnectivityGoalState').esDdoS]",
-                "connectivitySubscriptionId": "[if(not(equals(steps('esConnectivityGoalState').esNwSubSection.esNwSub.subscriptionId,steps('esGoalState').esMgmtSubSection.esMgmtSub.subscriptionId)),steps('esConnectivityGoalState').esNwSubSection.esNwSub.subscriptionId,'')]",
+                "connectivitySubscriptionId": "[if(not(equals(steps('esConnectivityGoalState').esNwSubSection.esNwSub.subscriptionId,steps('esMgmtGoalState').esMgmtSubSection.esMgmtSub.subscriptionId)),steps('esConnectivityGoalState').esNwSubSection.esNwSub.subscriptionId,'')]",
                 "enableAzFw": "[steps('esConnectivityGoalState').esAzFw]",
                 "enableAzFwDnsProxy": "[steps('esConnectivityGoalState').esAzFwDns]",
                 "addressPrefix": "[coalesce(steps('esConnectivityGoalState').esAddressHubVWAN, steps('esConnectivityGoalState').esAddressHubHS, '')]",
                 "location": "[steps('esConnectivityGoalState').esNwLocation]",
-                "managementSubscriptionId": "[steps('esGoalState').esMgmtSubSection.esMgmtSub.subscriptionId]",
-                "identitySubscriptionId": "[if(or(not(equals(steps('esIdentityGoalState').esIdentitySubSection.esIdentitySub.subscriptionId,steps('esGoalState').esMgmtSubSection.esMgmtSub.subscriptionId)),not(equals(steps('esIdentityGoalState').esIdentitySubSection.esIdentitySub.subscriptionId,steps('esConnectivityGoalState').esNwSubSection.esNwSub.subscriptionId))),steps('esIdentityGoalState').esIdentitySubSection.esIdentitySub.subscriptionId,'')]",
-                "onlineLzSubscriptionId": "[if(or(not(contains(steps('lzGoalState').esOnlineLzSub,steps('esGoalState').esMgmtSubSection.esMgmtSub.subscriptionId)),not(contains(steps('lzGoalState').esOnlineLzSub,steps('esConnectivityGoalState').esNwSubSection.esNwSub.subscriptionId))),steps('lzGoalState').esOnlineLzSub,'')]",
-                "corpLzSubscriptionId": "[if(or(not(contains(steps('lzGoalState').esCorpLzSub,steps('esGoalState').esMgmtSubSection.esMgmtSub.subscriptionId)),not(contains(steps('lzGoalState').esCorpLzSub,steps('esConnectivityGoalState').esNwSubSection.esNwSub.subscriptionId))),steps('lzGoalState').esCorpLzSub,'')]",
-                "enableLogAnalytics": "[steps('esGoalState').esLogAnalytics]",
+                "managementSubscriptionId": "[steps('esMgmtGoalState').esMgmtSubSection.esMgmtSub.subscriptionId]",
+                "identitySubscriptionId": "[if(or(not(equals(steps('esIdentityGoalState').esIdentitySubSection.esIdentitySub.subscriptionId,steps('esMgmtGoalState').esMgmtSubSection.esMgmtSub.subscriptionId)),not(equals(steps('esIdentityGoalState').esIdentitySubSection.esIdentitySub.subscriptionId,steps('esConnectivityGoalState').esNwSubSection.esNwSub.subscriptionId))),steps('esIdentityGoalState').esIdentitySubSection.esIdentitySub.subscriptionId,'')]",
+                "onlineLzSubscriptionId": "[if(or(not(contains(steps('lzGoalState').esOnlineLzSub,steps('esMgmtGoalState').esMgmtSubSection.esMgmtSub.subscriptionId)),not(contains(steps('lzGoalState').esOnlineLzSub,steps('esConnectivityGoalState').esNwSubSection.esNwSub.subscriptionId))),steps('lzGoalState').esOnlineLzSub,'')]",
+                "corpLzSubscriptionId": "[if(or(not(contains(steps('lzGoalState').esCorpLzSub,steps('esMgmtGoalState').esMgmtSubSection.esMgmtSub.subscriptionId)),not(contains(steps('lzGoalState').esCorpLzSub,steps('esConnectivityGoalState').esNwSubSection.esNwSub.subscriptionId))),steps('lzGoalState').esCorpLzSub,'')]",
+                "enableLogAnalytics": "[steps('esMgmtGoalState').esLogAnalytics]",
                 "denyRdpForIdentity": "[steps('esIdentityGoalState').esIdDenyRdp]",
                 "denySubnetWithoutNsgForIdentity": "[steps('esIdentityGoalState').esIdDenySubnetNsg]",
                 "denyPipForIdentity": "[steps('esIdentityGoalState').esIdDenyPublicIp]",
                 "enableVmBackupForIdentity": "[steps('esIdentityGoalState').esIdAzBackup]",
-                "enableAsc": "[steps('esGoalState').esAsc]",
-                "emailContactAsc": "[steps('esGoalState').esAscEmail]",
-                "enableAscForServers": "[steps('esGoalState').esAscVms]",
-                "enableAscForOssDb": "[steps('esGoalState').esAscOssDb]",
-                "enableAscForAppServices": "[steps('esGoalState').esAscApps]",
-                "enableAscForStorage": "[steps('esGoalState').esAscStorage]",
-                "enableAscForSql": "[steps('esGoalState').esAscSql]",
-                "enableAscForSqlOnVm": "[steps('esGoalState').esAscSqlOnVm]",
-                "enableAscForKeyVault": "[steps('esGoalState').esAscKeyVault]",
-                "enableAscForArm": "[steps('esGoalState').esAscArm]",
-                "enableAscForDns": "[steps('esGoalState').esAscDns]",
-                "enableAscForContainers": "[steps('esGoalState').esAscContainers]",
-                "enableSecuritySolution": "[steps('esGoalState').esSecuritySolution]",
-                "enableAgentHealth": "[steps('esGoalState').esAgentSolution]",
-                "enableChangeTracking": "[steps('esGoalState').esChangeTracking]",
-                "enableUpdateMgmt": "[steps('esGoalState').esUpdateMgmt]",
-                "enableActivityLog": "[steps('esGoalState').esActivityLog]",
-                "enableVmInsights": "[steps('esGoalState').esVmInsights]",
-                "enableServiceMap": "[steps('esGoalState').esServiceMap]",
-                "enableSqlAssessment": "[steps('esGoalState').esSqlAssessment]",
+                "enableAsc": "[steps('esMgmtGoalState').esAsc]",
+                "emailContactAsc": "[steps('esMgmtGoalState').esAscEmail]",
+                "enableAscForServers": "[steps('esMgmtGoalState').esAscVms]",
+                "enableAscForOssDb": "[steps('esMgmtGoalState').esAscOssDb]",
+                "enableAscForAppServices": "[steps('esMgmtGoalState').esAscApps]",
+                "enableAscForStorage": "[steps('esMgmtGoalState').esAscStorage]",
+                "enableAscForSql": "[steps('esMgmtGoalState').esAscSql]",
+                "enableAscForSqlOnVm": "[steps('esMgmtGoalState').esAscSqlOnVm]",
+                "enableAscForKeyVault": "[steps('esMgmtGoalState').esAscKeyVault]",
+                "enableAscForArm": "[steps('esMgmtGoalState').esAscArm]",
+                "enableAscForDns": "[steps('esMgmtGoalState').esAscDns]",
+                "enableAscForContainers": "[steps('esMgmtGoalState').esAscContainers]",
+                "enableSecuritySolution": "[steps('esMgmtGoalState').esSecuritySolution]",
+                "enableAgentHealth": "[steps('esMgmtGoalState').esAgentSolution]",
+                "enableChangeTracking": "[steps('esMgmtGoalState').esChangeTracking]",
+                "enableUpdateMgmt": "[steps('esMgmtGoalState').esUpdateMgmt]",
+                "enableActivityLog": "[steps('esMgmtGoalState').esActivityLog]",
+                "enableVmInsights": "[steps('esMgmtGoalState').esVmInsights]",
+                "enableServiceMap": "[steps('esMgmtGoalState').esServiceMap]",
+                "enableSqlAssessment": "[steps('esMgmtGoalState').esSqlAssessment]",
                 "enterpriseScaleCompanyPrefix": "[steps('lzSettings').esMgmtGroup]",
                 "enableSqlAudit": "[steps('lzGoalState').esSqlAudit]",
                 "enableSqlEncryption": "[steps('lzGoalState').esSqlEncryption]",
@@ -2476,7 +2500,7 @@
                 "denyDatabricksPip": "[steps('lzGoalState').esLzDbPip]",
                 "denyDatabricksVnet": "[steps('lzGoalState').esLzDbVnet]",
                 "denyDatabricksSku": "[steps('lzGoalState').esLzDbSku]",
-                "retentionInDays": "[string(steps('esGoalState').esLogRetention)]",
+                "retentionInDays": "[string(steps('esMgmtGoalState').esLogRetention)]",
                 "enableVmMonitoring": "[steps('lzGoalState').esVmMonitoring]",
                 "enableVmssMonitoring": "[steps('lzGoalState').esVmssMonitoring]",
                 "vpnOrErZones": "[steps('esConnectivityGoalState').esGwRegionalOrAz]",
@@ -2488,7 +2512,7 @@
                 "gitHubUserNameOrOrg": "[steps('lzDevOps').esGit]",
                 "appId": "[steps('lzDevOps').spnSection.esServicePrincipal.appId]",
                 "enableAzOps": "[steps('lzDevOps').cicdOption]",
-                "subscriptionId": "[steps('esGoalState').esMgmtSubSection.esMgmtSub.subscriptionId]",
+                "subscriptionId": "[steps('esMgmtGoalState').esMgmtSubSection.esMgmtSub.subscriptionId]",
                 "repositoryName": "[steps('lzDevOps').esGitRepoName]",
                 "gwRegionalOrAz": "[steps('esConnectivityGoalState').esGwRegionalOrAz]",
                 "gwAzSku": "[steps('esConnectivityGoalState').esGwAzSku]",
@@ -2502,7 +2526,7 @@
 				"enablePrivateDnsZones": "[steps('esConnectivityGoalState').esPrivateDns]",
                 "enablePrivateDnsZonesForLzs": "[steps('lzGoalState').esPrivateDnsZones]",
                 "identityAddressPrefix": "[steps('esIdentityGoalState').esIdentityCidr]",
-                "corpConnectedLzSubscriptionId": "[if(or(not(contains(steps('lzGoalState').esCorpLzSub,steps('esGoalState').esMgmtSubSection.esMgmtSub.subscriptionId)),not(contains(steps('lzGoalState').esCorpLzSub,steps('esConnectivityGoalState').esNwSubSection.esNwSub.subscriptionId))),steps('lzGoalState').lzConnectedSubs,'')]"
+                "corpConnectedLzSubscriptionId": "[if(or(not(contains(steps('lzGoalState').esCorpLzSub,steps('esMgmtGoalState').esMgmtSubSection.esMgmtSub.subscriptionId)),not(contains(steps('lzGoalState').esCorpLzSub,steps('esConnectivityGoalState').esNwSubSection.esNwSub.subscriptionId))),steps('lzGoalState').lzConnectedSubs,'')]"
             },
             "kind": "Tenant",
             "location": "[steps('basics').resourceScope.location.name]"
