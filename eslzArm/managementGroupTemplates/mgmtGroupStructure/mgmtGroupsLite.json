@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "topLevelManagementGroupPrefix": {
@@ -39,6 +39,7 @@
             // Create management group for platform management groups
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
+            "scope": "[tenantResourceId('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]",
             "name": "[variables('enterpriseScaleManagementGroups').platform]",
             "dependsOn": [
                 "[tenantResourceId('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]"
@@ -56,6 +57,7 @@
             // Create management group for landing zones
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
+            "scope": "[tenantResourceId('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]",
             "name": "[variables('enterpriseScaleManagementGroups').landingZone]",
             "dependsOn": [
                 "[tenantResourceId('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]"
@@ -73,6 +75,7 @@
             // Create management group for sandbox subscriptions
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
+            "scope": "[tenantResourceId('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]",
             "name": "[variables('enterpriseScaleManagementGroups').sandboxes]",
             "dependsOn": [
                 "[tenantResourceId('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]"
@@ -90,6 +93,7 @@
             // Create management group for decommissioned subscriptions
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
+            "scope": "[tenantResourceId('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]",
             "name": "[variables('enterpriseScaleManagementGroups').decommissioned]",
             "dependsOn": [
                 "[tenantResourceId('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]"
@@ -108,6 +112,7 @@
             "condition": "[not(empty(parameters('landingZoneMgs')))]",
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
+            "scope": "[tenantResourceId('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]",
             "name": "[concat(parameters('topLevelManagementGroupPrefix'), '-', parameters('landingZoneMgs')[copyIndex()])]",
             "dependsOn": [
                 "[tenantResourceId('Microsoft.Management/managementGroups/', variables('enterpriseScaleManagementGroups').landingZone)]"

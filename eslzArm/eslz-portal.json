@@ -2644,7 +2644,7 @@
                 "enableSqlAudit": "[steps('landingZones').enableSqlAudit]",
                 "enableStorageHttps": "[steps('landingZones').enableStorageHttps]"
             },
-            "kind": "Tenant",
+            "kind": "ManagementGroup",
             "location": "[steps('basics').resourceScope.location.name]"
         }
     }
