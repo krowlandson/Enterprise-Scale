@@ -49,14 +49,32 @@
                                     "options": {
                                         "icon": "Warning",
                                         "text": "This value should be automatically set based on the list of available locations. Only change this if you believe the value to be incorrect.",
-                                        "uri": "https://docs.microsoft.com/en-us/cli/azure/manage-clouds-azure-cli"
+                                        "uri": "https://docs.microsoft.com/cli/azure/manage-clouds-azure-cli"
                                     }
                                 }
                             ]
                         },
                         {
+                            "name": "mgSelectionMessage",
+                            "type": "Microsoft.Common.InfoBox",
+                            "visible": true,
+                            "options": {
+                                "icon": "Info",
+                                "text": "The management group selected below will be used to run the base template deployment. Additional deployments will be created under Management Groups created by this template. Please ensure you have the required permissions to run deployments against the selected management group.",
+                                "uri": "https://docs.microsoft.com/azure/azure-resource-manager/templates/deploy-to-management-group?tabs=azure-cli"
+                            }
+                        },
+                        {
                             "name": "resourceScope",
                             "type": "Microsoft.Common.ResourceScope"
+                        },
+                        {
+                            "name": "getManagementGroups",
+                            "type": "Microsoft.Solutions.ArmApiControl",
+                            "request": {
+                                "method": "GET",
+                                "path": "providers/Microsoft.Management/managementGroups?api-version=2021-04-01"
+                            }
                         },
                         {
                             "name": "getSubscriptions",
@@ -86,26 +104,58 @@
                     "bladeTitle": "ALZ - Core Settings",
                     "elements": [
                         {
-                            "name": "info",
-                            "type": "Microsoft.Common.InfoBox",
-                            "visible": true,
-                            "options": {
-                                "text": "Azure Landing Zones ARM deployment requires access at the tenant root (/) scope. Visit this link to ensure you have the appropriate RBAC permission to complete the deployment",
-                                "uri": "https://docs.microsoft.com/azure/role-based-access-control/elevate-access-global-admin",
-                                "style": "Info"
-                            }
-                        },
-                        {
-                            "name": "mgmtGroup",
+                            "name": "mgmtGroupMessage",
                             "type": "Microsoft.Common.TextBlock",
                             "visible": true,
                             "options": {
-                                "text": "Azure Landing Zones will create the management group hierarchy under the Tenant Root Group with the prefix provided at this step.",
+                                "icon": "None",
+                                "text": "By default, this custom template will create the full reference Azure landing zone management group hierarchy under the management group selected in the previous \"Deployment settings\" step.",
                                 "link": {
                                     "label": "Learn more",
                                     "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-group-and-subscription-organization"
                                 }
                             }
+                        },
+                        {
+                            "name": "mgmtGroupMessage2",
+                            "type": "Microsoft.Common.TextBlock",
+                            "visible": true,
+                            "options": {
+                                "icon": "None",
+                                "text": "To create a new \"customer root\" (\"contoso\") management group named with the resource prefix provided below, select \"Create new (recommended)\". If you want to use the management group selected in the previous \"Deployment settings\" step as the \"customer root\" (\"contoso\") management group, select \"No\"."
+                            }
+                        },
+                        {
+                            "name": "existingRoot",
+                            "type": "Microsoft.Common.OptionsGroup",
+                            "label": "Create new or use existing management group as \"Customer root\".",
+                            "defaultValue": "Create new (recommended)",
+                            "toolTip": "The recommended option is to create a new \"Customer root\" management group under the Tenant Root Group",
+                            "constraints": {
+                                "allowedValues": [
+                                    {
+                                        "label": "Create new (recommended)",
+                                        "value": "new"
+                                    },
+                                    {
+                                        "label": "Use existing",
+                                        "value": "existing"
+                                    }
+                                ],
+                                "required": true
+                            },
+                            "visible": true
+                        },
+                        {
+                            "name": "parentManagementGroupId",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Parent Management Group ID",
+                            "toolTip": "Specify which management group to use as the parent management group when creating a new \"customer root\" management group.",
+                            "defaultValue": "[steps('basics').resourceScope.managementGroup.displayName]",
+                            "constraints": {
+                                "allowedValues": "[map(filter(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.displayName, '\",\"description\":\"', mgs.displayName, '\",\"value\":\"', mgs.name, '\"}')) )]"
+                            },
+                            "visible": "[equals(steps('core').existingRoot, 'Create new (recommended)')]"
                         },
                         {
                             "name": "enterpriseScaleCompanyPrefix",
@@ -2645,7 +2695,8 @@
                 "enableStorageHttps": "[steps('landingZones').enableStorageHttps]"
             },
             "kind": "ManagementGroup",
-            "location": "[steps('basics').resourceScope.location.name]"
+            "location": "[steps('basics').resourceScope.location.name]",
+            "managementGroupId": "[steps('basics').resourceScope.managementGroup.id]"
         }
     }
 }
