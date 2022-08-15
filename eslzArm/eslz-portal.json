@@ -104,58 +104,57 @@
                     "bladeTitle": "ALZ - Core Settings",
                     "elements": [
                         {
-                            "name": "mgmtGroupMessage",
-                            "type": "Microsoft.Common.TextBlock",
-                            "visible": true,
-                            "options": {
-                                "icon": "None",
-                                "text": "By default, this custom template will create the full reference Azure landing zone management group hierarchy under the management group selected in the previous \"Deployment settings\" step.",
-                                "link": {
-                                    "label": "Learn more",
-                                    "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-group-and-subscription-organization"
-                                }
-                            }
-                        },
-                        {
-                            "name": "mgmtGroupMessage2",
-                            "type": "Microsoft.Common.TextBlock",
-                            "visible": true,
-                            "options": {
-                                "icon": "None",
-                                "text": "To create a new \"customer root\" (\"contoso\") management group named with the resource prefix provided below, select \"Create new (recommended)\". If you want to use the management group selected in the previous \"Deployment settings\" step as the \"customer root\" (\"contoso\") management group, select \"No\"."
-                            }
-                        },
-                        {
-                            "name": "existingRoot",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Create new or use existing management group as \"Customer root\".",
-                            "defaultValue": "Create new (recommended)",
-                            "toolTip": "The recommended option is to create a new \"Customer root\" management group under the Tenant Root Group",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Create new (recommended)",
-                                        "value": "new"
-                                    },
-                                    {
-                                        "label": "Use existing",
-                                        "value": "existing"
+                            "name": "rootManagementGroup",
+                            "type": "Microsoft.Common.Section",
+                            "label": "Root Management Group",
+                            "elements": [
+                                {
+                                    "name": "rootMgMessage",
+                                    "type": "Microsoft.Common.TextBlock",
+                                    "visible": true,
+                                    "options": {
+                                        "icon": "Info",
+                                        "text": "By default, this custom template will create the full reference Azure landing zone management group hierarchy under the management group selected in the previous \"Deployment settings\" step. To create a new \"root\" management group, select \"Create new (recommended)\". To use an existing management group, select \"Use existing\".",
+                                        "link": {
+                                            "label": "Learn more",
+                                            "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-group-and-subscription-organization"
+                                        }
                                     }
-                                ],
-                                "required": true
-                            },
+                                },
+                                {
+                                    "name": "newOrExistingRoot",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Create new or use existing management group as \"Customer root\".",
+                                    "defaultValue": "Create new (recommended)",
+                                    "toolTip": "The recommended option is to create a new \"Customer root\" management group under the Tenant Root Group",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Create new (recommended)",
+                                                "value": "new"
+                                            },
+                                            {
+                                                "label": "Use existing",
+                                                "value": "existing"
+                                            }
+                                        ],
+                                        "required": true
+                                    },
+                                    "visible": true
+                                },
+                                {
+                                    "name": "parentManagementGroupId",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "label": "Parent Management Group ID",
+                                    "toolTip": "Specify which management group to use as the parent management group when creating a new \"customer root\" management group.",
+                                    "defaultValue": "[steps('basics').resourceScope.managementGroup.displayName]",
+                                    "constraints": {
+                                        "allowedValues": "[map(filter(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.displayName, '\",\"description\":\"', mgs.displayName, '\",\"value\":\"', mgs.name, '\"}')) )]"
+                                    },
+                                    "visible": true
+                                }
+                            ],
                             "visible": true
-                        },
-                        {
-                            "name": "parentManagementGroupId",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Parent Management Group ID",
-                            "toolTip": "Specify which management group to use as the parent management group when creating a new \"customer root\" management group.",
-                            "defaultValue": "[steps('basics').resourceScope.managementGroup.displayName]",
-                            "constraints": {
-                                "allowedValues": "[map(filter(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.displayName, '\",\"description\":\"', mgs.displayName, '\",\"value\":\"', mgs.name, '\"}')) )]"
-                            },
-                            "visible": "[equals(steps('core').existingRoot, 'Create new (recommended)')]"
                         },
                         {
                             "name": "enterpriseScaleCompanyPrefix",
@@ -167,7 +166,8 @@
                                 "required": true,
                                 "regex": "^[a-z0-9A-Z-]{1,10}$",
                                 "validationMessage": "The prefix must be 1-10 characters."
-                            }
+                            },
+                            "visible": true
                         },
                         {
                             "name": "platformSubscription",
@@ -213,8 +213,9 @@
                                     }
                                 },
                                 {
-                                    "type": "Microsoft.Common.SubscriptionSelector",
                                     "name": "selector",
+                                    "type": "Microsoft.Common.SubscriptionSelector",
+                                    "visible": true,
                                     "label": "Single platform subscription"
                                 }
                             ],
