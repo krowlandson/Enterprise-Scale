@@ -106,27 +106,24 @@
                         {
                             "name": "rootManagementGroup",
                             "type": "Microsoft.Common.Section",
-                            "label": "Root Management Group",
+                            "label": "Root management group configuration",
                             "elements": [
                                 {
                                     "name": "rootMgMessage",
-                                    "type": "Microsoft.Common.TextBlock",
+                                    "type": "Microsoft.Common.InfoBox",
                                     "visible": true,
                                     "options": {
                                         "icon": "Info",
                                         "text": "By default, this custom template will create the full reference Azure landing zone management group hierarchy under the management group selected in the previous \"Deployment settings\" step. To create a new \"root\" management group, select \"Create new (recommended)\". To use an existing management group, select \"Use existing\".",
-                                        "link": {
-                                            "label": "Learn more",
-                                            "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-group-and-subscription-organization"
-                                        }
+                                        "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-group-and-subscription-organization"
                                     }
                                 },
                                 {
                                     "name": "newOrExistingRoot",
                                     "type": "Microsoft.Common.OptionsGroup",
-                                    "label": "Create new or use existing management group as \"Customer root\".",
+                                    "label": "Create new or use existing root management group",
                                     "defaultValue": "Create new (recommended)",
-                                    "toolTip": "The recommended option is to create a new \"Customer root\" management group under the Tenant Root Group",
+                                    "toolTip": "The recommended option is to create a new root management group under the Tenant Root Group",
                                     "constraints": {
                                         "allowedValues": [
                                             {
@@ -143,10 +140,10 @@
                                     "visible": true
                                 },
                                 {
-                                    "name": "parentManagementGroupId",
-                                    "type": "Microsoft.Common.TextBox",
-                                    "label": "Parent Management Group ID",
-                                    "toolTip": "Specify which management group to use as the parent management group when creating a new \"customer root\" management group.",
+                                    "name": "parentManagementGroup",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Parent Management Group",
+                                    "toolTip": "Specify which management group to use as the parent management group when creating a new root management group.",
                                     "defaultValue": "[steps('basics').resourceScope.managementGroup.displayName]",
                                     "constraints": {
                                         "allowedValues": "[map(filter(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.displayName, '\",\"description\":\"', mgs.displayName, '\",\"value\":\"', mgs.name, '\"}')) )]"
@@ -157,47 +154,55 @@
                             "visible": true
                         },
                         {
-                            "name": "enterpriseScaleCompanyPrefix",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Resource prefix (Root ID)",
-                            "toolTip": "Provide a resource prefix (max 10 characters, unique at tenant-scope). This will be used for the Management Group hierarchy and other resources created as part of this deployment.",
-                            "defaultValue": "",
-                            "constraints": {
-                                "required": true,
-                                "regex": "^[a-z0-9A-Z-]{1,10}$",
-                                "validationMessage": "The prefix must be 1-10 characters."
-                            },
-                            "visible": true
-                        },
-                        {
-                            "name": "platformSubscription",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Platform subscription options",
-                            "defaultValue": "Dedicated (recommended)",
-                            "toolTip": "If 'Dedicated (recommended)' is selected, dedicated Subscriptions will be used for deploying connectivity, identity and management resources.",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Dedicated (recommended)",
-                                        "value": "Dedicated"
-                                    },
-                                    {
-                                        "label": "Single",
-                                        "value": "Single"
-                                    }
-                                ]
-                            },
-                            "visible": true
-                        },
-                        {
-                            "name": "singleSubscription",
+                            "name": "naming",
                             "type": "Microsoft.Common.Section",
-                            "label": "Single platform subscription",
+                            "label": "Resource naming",
                             "elements": [
+                                {
+                                    "name": "enterpriseScaleCompanyPrefix",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "label": "Resource prefix",
+                                    "toolTip": "Provide a resource prefix (max 10 characters, unique at tenant-scope). This will be used for the Management Group hierarchy and other resources created as part of this deployment.",
+                                    "defaultValue": "",
+                                    "constraints": {
+                                        "required": true,
+                                        "regex": "^[a-z0-9A-Z-]{1,10}$",
+                                        "validationMessage": "The prefix must be 1-10 characters."
+                                    },
+                                    "visible": true
+                                }
+                            ],
+                            "visible": true
+                        },
+                        {
+                            "name": "platform",
+                            "type": "Microsoft.Common.Section",
+                            "label": "Platform subscription configuration",
+                            "elements": [
+                                {
+                                    "name": "subscriptionOption",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Platform subscription options",
+                                    "defaultValue": "Dedicated (recommended)",
+                                    "toolTip": "If 'Dedicated (recommended)' is selected, dedicated Subscriptions will be used for deploying connectivity, identity and management resources.",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Dedicated (recommended)",
+                                                "value": "Dedicated"
+                                            },
+                                            {
+                                                "label": "Single",
+                                                "value": "Single"
+                                            }
+                                        ]
+                                    },
+                                    "visible": true
+                                },
                                 {
                                     "name": "subWarning",
                                     "type": "Microsoft.Common.InfoBox",
-                                    "visible": true,
+                                    "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]",
                                     "options": {
                                         "icon": "Warning",
                                         "text": "Dedicated subscriptions are recommended for the different platform resource categories to ensure scale, sustainability, and segregation of duties. A single subscription can be used for proof of concepts, or by smaller organizations.",
@@ -207,19 +212,19 @@
                                 {
                                     "name": "singleSubText",
                                     "type": "Microsoft.Common.TextBlock",
-                                    "visible": true,
+                                    "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]",
                                     "options": {
                                         "text": "Select a single subscription that will be used for all platform resources. This includes resources relating to platform management, security, governance, automation, connectivity, and identity."
                                     }
                                 },
                                 {
-                                    "name": "selector",
+                                    "name": "singleSubscriptionSelector",
                                     "type": "Microsoft.Common.SubscriptionSelector",
-                                    "visible": true,
+                                    "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]",
                                     "label": "Single platform subscription"
                                 }
                             ],
-                            "visible": "[equals(steps('core').platformSubscription, 'Single')]"
+                            "visible": true
                         },
                         {
                             "name": "cuaSection",
@@ -273,7 +278,7 @@
                         {
                             "name": "multiPlatformMgmtSub",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[not(equals(steps('core').platformSubscription, 'Single'))]",
+                            "visible": "[not(equals(steps('core').platform.subscriptionOption, 'Single'))]",
                             "options": {
                                 "text": "To enable platform management, security and governance, you must allocate a management Subscription. Please note, this Subscription will be moved to the platform Management Group, and ARM will deploy a Log Analytics workspace and requisite settings. We recommend using a new Subscription with no existing resources. Note that Azure Policy will be used to govern the configuration for the platform at scale.",
                                 "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-and-monitoring",
@@ -283,7 +288,7 @@
                         {
                             "name": "singlePlatformMgmtSub",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[equals(steps('core').platformSubscription, 'Single')]",
+                            "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]",
                             "options": {
                                 "text": "To enable platform management, security and governance, you can configure core infra such as Log Analytics, Azure Security Center and additional monitoring solutions to your dedicated platform subscription. Note that Azure Policy will be used to govern the configuration for the platform at scale.",
                                 "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-and-monitoring",
@@ -345,7 +350,7 @@
                                     "label": "Management subscription"
                                 }
                             ],
-                            "visible": "[and(equals(steps('management').enableLogAnalytics, 'Yes'), not(equals(steps('core').platformSubscription, 'Single')))]"
+                            "visible": "[and(equals(steps('management').enableLogAnalytics, 'Yes'), not(equals(steps('core').platform.subscriptionOption, 'Single')))]"
                         },
                         {
                             "name": "monitoring",
@@ -815,7 +820,7 @@
                         {
                             "name": "info",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[or(not(empty(steps('management').esMgmtSubSection.esMgmtSub)), not(empty(steps('core').singleSubscription.selector)))]",
+                            "visible": "[or(not(empty(steps('management').esMgmtSubSection.esMgmtSub)), not(empty(steps('core').platform.singleSubscriptionSelector)))]",
                             "options": {
                                 "text": "Azure Landing Zones provides an integrated CI/CD pipeline via AzOps that can be used with either GitHub Actions or Azure DevOps pipelines.",
                                 "uri": "https://github.com/azure/azops-accelerator/wiki/introduction",
@@ -825,7 +830,7 @@
                         {
                             "name": "correction",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[and(equals(steps('management').enableLogAnalytics, 'No'), not(equals(steps('core').platformSubscription, 'Single')))]",
+                            "visible": "[and(equals(steps('management').enableLogAnalytics, 'No'), not(equals(steps('core').platform.subscriptionOption, 'Single')))]",
                             "options": {
                                 "text": "Azure Landing Zones provides an integrated CI/CD pipeline via AzOps that can be used with either GitHub Actions or Azure DevOps pipelines, but requires a dedicated subscription for platform management in the previous step. Please add a subscription or continue without setting up the CI/CD integration.",
                                 "uri": "https://github.com/azure/azops-accelerator/wiki/introduction",
@@ -851,7 +856,7 @@
                                 ],
                                 "required": true
                             },
-                            "visible": "[or(not(empty(steps('management').esMgmtSubSection.esMgmtSub)), not(empty(steps('core').singleSubscription.selector)))]"
+                            "visible": "[or(not(empty(steps('management').esMgmtSubSection.esMgmtSub)), not(empty(steps('core').platform.singleSubscriptionSelector)))]"
                         },
                         {
                             "name": "Instructions",
@@ -974,7 +979,7 @@
                         {
                             "name": "multiPlatformConnectivitySub",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[not(equals(steps('core').platformSubscription, 'Single'))]",
+                            "visible": "[not(equals(steps('core').platform.subscriptionOption, 'Single'))]",
                             "options": {
                                 "text": "To enable network topology and connectivity, you must allocate a dedicated connectivity Subscription. Please note, this Subscription will be moved to the connectivity Management Group, and ARM will deploy the first hub virtual network for either a hub and spoke or Virtual WAN  network topology. Additional networking platform resources such as gateways or Azure Firewall can be deployed. We recommend using a new dedicated Subscription with no existing resources.",
                                 "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/define-an-azure-network-topology",
@@ -984,7 +989,7 @@
                         {
                             "name": "singlePlatformConnectivitySub",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[equals(steps('core').platformSubscription, 'Single')]",
+                            "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]",
                             "options": {
                                 "text": "To enable network topology and connectivity, you can select the preferred networking topology, and deploy this into the dedicated platform subscription. Additional networking platform resources such as gateways or Azure Firewall can also be deployed.",
                                 "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/define-an-azure-network-topology",
@@ -1039,7 +1044,7 @@
                                     "label": "Connectivity subscription"
                                 }
                             ],
-                            "visible": "[and(not(equals(steps('connectivity').enableHub, 'No')), not(equals(steps('core').platformSubscription, 'Single')))]"
+                            "visible": "[and(not(equals(steps('connectivity').enableHub, 'No')), not(equals(steps('core').platform.subscriptionOption, 'Single')))]"
                         },
                         {
                             "name": "esAddressHubVWAN",
@@ -1764,7 +1769,7 @@
                         {
                             "name": "multiPlatformIdentitySub",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[not(equals(steps('core').platformSubscription, 'Single'))]",
+                            "visible": "[not(equals(steps('core').platform.subscriptionOption, 'Single'))]",
                             "options": {
                                 "text": "To enable identity (AuthN/AuthZ) for workloads in landing zones, you must allocate an identity Subscription that is dedicated to host your Active Directory domain controllers. Please note, this Subscription will be moved to the identity Management Group, and ARM will assign the selected policies. We recommend using a new Subscription with no existing resources.",
                                 "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/identity-and-access-management",
@@ -1774,7 +1779,7 @@
                         {
                             "name": "singlePlatformIdentitySub",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[equals(steps('core').platformSubscription, 'Single')]",
+                            "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]",
                             "options": {
                                 "text": "To enable identity (AuthN/AuthZ) for workloads in landing zones, it is recommended to assign specific policies to govern the virtual machines used for Active Directory domain controllers.",
                                 "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/identity-and-access-management",
@@ -1821,7 +1826,7 @@
                                     "label": "Management subscription"
                                 }
                             ],
-                            "visible": "[and(equals(steps('identity').esIdentity,'Yes'), not(equals(steps('core').platformSubscription, 'Single')))]"
+                            "visible": "[and(equals(steps('identity').esIdentity,'Yes'), not(equals(steps('core').platform.subscriptionOption, 'Single')))]"
                         },
                         {
                             "name": "identitypolicies",
@@ -1893,7 +1898,7 @@
                                     }
                                 ]
                             },
-                            "visible": "[and(equals(steps('identity').esIdentity,'Yes'), not(equals(steps('core').platformSubscription, 'Single')))]"
+                            "visible": "[and(equals(steps('identity').esIdentity,'Yes'), not(equals(steps('core').platform.subscriptionOption, 'Single')))]"
                         },
                         {
                             "name": "enableVmBackupForIdentity",
@@ -1933,7 +1938,7 @@
                                     }
                                 ]
                             },
-                            "visible": "[and(and(equals(steps('identity').esIdentity,'Yes'), not(equals(steps('core').platformSubscription, 'Single'))), equals(steps('identity').esIdentity, 'Yes'), not(equals(steps('connectivity').enableHub,'No')))]"
+                            "visible": "[and(and(equals(steps('identity').esIdentity,'Yes'), not(equals(steps('core').platform.subscriptionOption, 'Single'))), equals(steps('identity').esIdentity, 'Yes'), not(equals(steps('connectivity').enableHub,'No')))]"
                         },
                         {
                             "name": "identityAddressPrefix",
@@ -2607,8 +2612,8 @@
         },
         "outputs": {
             "parameters": {
-                "enterpriseScaleCompanyPrefix": "[steps('core').enterpriseScaleCompanyPrefix]",
-                "singlePlatformSubscriptionId": "[steps('core').singleSubscription.selector.subscriptionId]",
+                "enterpriseScaleCompanyPrefix": "[steps('core').naming.enterpriseScaleCompanyPrefix]",
+                "singlePlatformSubscriptionId": "[steps('core').platform.singleSubscriptionSelector.subscriptionId]",
                 "telemetryOptOut": "[steps('core').cuaSection.telemetryOptOut]",
                 "enableLogAnalytics": "[steps('management').enableLogAnalytics]",
                 "retentionInDays": "[string(steps('management').retentionInDays)]",
