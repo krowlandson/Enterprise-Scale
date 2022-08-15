@@ -141,12 +141,13 @@
                                 },
                                 {
                                     "name": "parentManagementGroup",
-                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "type": "Microsoft.Common.DropDown",
                                     "label": "Parent Management Group",
+                                    "filter": true,
                                     "toolTip": "Specify which management group to use as the parent management group when creating a new root management group.",
                                     "defaultValue": "[steps('basics').resourceScope.managementGroup.displayName]",
                                     "constraints": {
-                                        "allowedValues": "[map(filter(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.displayName, '\",\"description\":\"', mgs.displayName, '\",\"value\":\"', mgs.name, '\"}')) )]"
+                                        "allowedValues": "[map(filter(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.displayName, '\",\"description\":\"', mgs.name, '\",\"value\":\"', mgs.name, '\"}')) )]"
                                     },
                                     "visible": true
                                 }
