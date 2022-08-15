@@ -200,28 +200,36 @@
                                     "visible": true
                                 },
                                 {
-                                    "name": "subWarning",
-                                    "type": "Microsoft.Common.InfoBox",
-                                    "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]",
-                                    "options": {
-                                        "icon": "Warning",
-                                        "text": "Dedicated subscriptions are recommended for the different platform resource categories to ensure scale, sustainability, and segregation of duties. A single subscription can be used for proof of concepts, or by smaller organizations.",
-                                        "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-group-and-subscription-organization"
-                                    }
-                                },
-                                {
-                                    "name": "singleSubText",
-                                    "type": "Microsoft.Common.TextBlock",
-                                    "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]",
-                                    "options": {
-                                        "text": "Select a single subscription that will be used for all platform resources. This includes resources relating to platform management, security, governance, automation, connectivity, and identity."
-                                    }
-                                },
-                                {
-                                    "name": "singleSubscriptionSelector",
-                                    "type": "Microsoft.Common.SubscriptionSelector",
-                                    "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]",
-                                    "label": "Single platform subscription"
+                                    "name": "singleSubscription",
+                                    "type": "Microsoft.Common.Section",
+                                    "label": "Platform subscription configuration",
+                                    "elements": [
+                                        {
+                                            "name": "subWarning",
+                                            "type": "Microsoft.Common.InfoBox",
+                                            "visible": true,
+                                            "options": {
+                                                "icon": "Warning",
+                                                "text": "Dedicated subscriptions are recommended for the different platform resource categories to ensure scale, sustainability, and segregation of duties. A single subscription can be used for proof of concepts, or by smaller organizations.",
+                                                "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-group-and-subscription-organization"
+                                            }
+                                        },
+                                        {
+                                            "name": "singleSubText",
+                                            "type": "Microsoft.Common.TextBlock",
+                                            "visible": true,
+                                            "options": {
+                                                "text": "Select a single subscription that will be used for all platform resources. This includes resources relating to platform management, security, governance, automation, connectivity, and identity."
+                                            }
+                                        },
+                                        {
+                                            "name": "selector",
+                                            "type": "Microsoft.Common.SubscriptionSelector",
+                                            "visible": true,
+                                            "label": "Single platform subscription"
+                                        }
+                                    ],
+                                    "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]"
                                 }
                             ],
                             "visible": true
@@ -820,7 +828,7 @@
                         {
                             "name": "info",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[or(not(empty(steps('management').esMgmtSubSection.esMgmtSub)), not(empty(steps('core').platform.singleSubscriptionSelector)))]",
+                            "visible": "[or(not(empty(steps('management').esMgmtSubSection.esMgmtSub)), not(empty(steps('core').platform.singleSubscription.selector)))]",
                             "options": {
                                 "text": "Azure Landing Zones provides an integrated CI/CD pipeline via AzOps that can be used with either GitHub Actions or Azure DevOps pipelines.",
                                 "uri": "https://github.com/azure/azops-accelerator/wiki/introduction",
@@ -856,7 +864,7 @@
                                 ],
                                 "required": true
                             },
-                            "visible": "[or(not(empty(steps('management').esMgmtSubSection.esMgmtSub)), not(empty(steps('core').platform.singleSubscriptionSelector)))]"
+                            "visible": "[or(not(empty(steps('management').esMgmtSubSection.esMgmtSub)), not(empty(steps('core').platform.singleSubscription.selector)))]"
                         },
                         {
                             "name": "Instructions",
@@ -2613,7 +2621,7 @@
         "outputs": {
             "parameters": {
                 "enterpriseScaleCompanyPrefix": "[steps('core').naming.enterpriseScaleCompanyPrefix]",
-                "singlePlatformSubscriptionId": "[steps('core').platform.singleSubscriptionSelector.subscriptionId]",
+                "singlePlatformSubscriptionId": "[steps('core').platform.singleSubscription.selector.subscriptionId]",
                 "telemetryOptOut": "[steps('core').cuaSection.telemetryOptOut]",
                 "enableLogAnalytics": "[steps('management').enableLogAnalytics]",
                 "retentionInDays": "[string(steps('management').retentionInDays)]",
