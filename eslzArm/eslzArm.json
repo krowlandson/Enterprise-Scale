@@ -703,7 +703,6 @@
         "azPrivateDnsPolicyAssignment": "[variables('azPrivateDnsPolicyAssignmentMapping')[environment().name]]",
         "deploymentUris": {
             "managementGroups": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/mgmtGroupStructure/mgmtGroups.json')]",
-            "managementGroupsLite": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/mgmtGroupStructure/mgmtGroupsLite.json')]",
             "policyDefinitions": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/policyDefinitions/policies.json')]",
             "vnetConnectivityHub": "[uri(deployment().properties.templateLink.uri, 'subscriptionTemplates/hubspoke-connectivity.json')]",
             "vwanConnectivityHub": "[uri(deployment().properties.templateLink.uri, 'subscriptionTemplates/vwan-connectivity.json')]",
@@ -3101,7 +3100,7 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "contentVersion": "1.0.0.0",
-                    "uri": "[variables('deploymentUris').managementGroupsLite]"
+                    "uri": "[variables('deploymentUris').managementGroups]"
                 },
                 "parameters": {
                     "rootId": {
@@ -3115,6 +3114,9 @@
                     },
                     "parentManagementGroupId": {
                         "value": "[parameters('parentManagementGroupId')]"
+                    },
+                    "platformMgs": {
+                        "value": []
                     }
                 }
             }
