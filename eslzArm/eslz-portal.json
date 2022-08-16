@@ -147,14 +147,6 @@
                             "type": "Microsoft.Common.Section",
                             "elements": [
                                 {
-                                    "name": "mgList",
-                                    "type": "Microsoft.Common.TextBlock",
-                                    "visible": true,
-                                    "options": {
-                                        "text": "[string(steps('basics').getManagementGroups.value)]"
-                                    }
-                                },
-                                {
                                     "name": "parentManagementGroup",
                                     "type": "Microsoft.Common.DropDown",
                                     "label": "Parent Management Group",
@@ -165,13 +157,13 @@
                                     "filter": true,
                                     "filterPlaceholder": "Filter management groups...",
                                     "multiLine": true,
-                                    "visible": "equals(steps('core').rootManagementGroup.newOrExisting, 'new')",
+                                    "visible": "[equals(steps('core').rootManagementGroup.newOrExisting, 'new')]",
                                     "constraints": {
-                                        "allowedValues": "[map(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.displayName, '\",\"description\":\"', mgs.name, '\",\"value\":\"', mgs.name, '\"}')))]"
+                                        "allowedValues": "[map(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.properties.displayName, '\",\"description\":\"', mgs.name, '\",\"value\":\"', mgs.name, '\"}')))]"
                                     }
                                 }
                             ],
-                            "visible": "equals(steps('core').rootManagementGroup.newOrExisting, 'new')"
+                            "visible": "[equals(steps('core').rootManagementGroup.newOrExisting, 'new')]"
                         },
                         {
                             "name": "naming",
