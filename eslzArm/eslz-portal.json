@@ -2626,7 +2626,7 @@
             "parameters": {
                 "rootId": "[steps('core').naming.rootId]",
                 "createNewRoot": "[steps('core').rootManagementGroup.createNewRoot]",
-                "parentManagementGroupId": "[coalesce(steps('core').rootManagementGroup.createNewRoot), steps('basics').resourceScope.managementGroup.id]",
+                "parentManagementGroupId": "[coalesce(steps('core').rootManagementGroup.parentManagementGroupId, steps('basics').resourceScope.managementGroup.id)]",
                 "platformSubscriptionId": "[steps('core').singleSubscription.selector.subscriptionId]",
                 "telemetryOptOut": "[steps('core').cuaSection.telemetryOptOut]",
                 "enableLogAnalytics": "[steps('management').enableLogAnalytics]",
