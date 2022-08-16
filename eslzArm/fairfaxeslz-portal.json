@@ -2363,7 +2363,7 @@
                 "enableSqlAssessment": "[steps('esGoalState').esSqlAssessment]",
                 "enableSqlVulnerabilityAssessment": "[steps('esGoalState').esSqlVulnerabilityAssessment]",
                 "enableSqlAdvancedThreatProtection": "[steps('esGoalState').esSqlAdvancedThreatProtection]",
-                "enterpriseScaleCompanyPrefix": "[steps('lzSettings').esMgmtGroup]",
+                "rootId": "[steps('lzSettings').esMgmtGroup]",
                 "enableSqlAudit": "[steps('lzGoalState').esSqlAudit]",
                 "enableSqlEncryption": "[steps('lzGoalState').esSqlEncryption]",
                 "enableVmBackup": "[steps('lzGoalState').esAzBackup]",

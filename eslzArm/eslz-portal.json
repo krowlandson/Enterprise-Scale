@@ -164,7 +164,7 @@
                             "label": "Resource naming",
                             "elements": [
                                 {
-                                    "name": "enterpriseScaleCompanyPrefix",
+                                    "name": "rootId",
                                     "type": "Microsoft.Common.TextBox",
                                     "label": "Resource prefix",
                                     "toolTip": "Provide a resource prefix (max 10 characters, unique at tenant-scope). This will be used for the Management Group hierarchy and other resources created as part of this deployment.",
@@ -2624,7 +2624,7 @@
         },
         "outputs": {
             "parameters": {
-                "enterpriseScaleCompanyPrefix": "[steps('core').naming.enterpriseScaleCompanyPrefix]",
+                "rootId": "[steps('core').naming.rootId]",
                 "singlePlatformSubscriptionId": "[steps('core').singleSubscription.selector.subscriptionId]",
                 "telemetryOptOut": "[steps('core').cuaSection.telemetryOptOut]",
                 "enableLogAnalytics": "[steps('management').enableLogAnalytics]",

@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "enterpriseScaleCompanyPrefix": {
+        "rootId": {
             "type": "string",
             "maxLength": 10,
             "metadata": {
@@ -658,14 +658,14 @@
     "variables": {
         // Declaring the prescriptive management group structure that will be used in the scope construction
         "mgmtGroups": {
-            "eslzRoot": "[parameters('enterpriseScaleCompanyPrefix')]",
-            "platform": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-', 'platform')]",
-            "management": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-', 'management')]",
-            "connectivity": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-', 'connectivity')]",
-            "identity": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-', 'identity')]",
-            "lzs": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-', 'landingzones')]",
-            "corp": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-', 'corp')]",
-            "online": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-', 'online')]"
+            "eslzRoot": "[parameters('rootId')]",
+            "platform": "[concat(parameters('rootId'), '-', 'platform')]",
+            "management": "[concat(parameters('rootId'), '-', 'management')]",
+            "connectivity": "[concat(parameters('rootId'), '-', 'connectivity')]",
+            "identity": "[concat(parameters('rootId'), '-', 'identity')]",
+            "lzs": "[concat(parameters('rootId'), '-', 'landingzones')]",
+            "corp": "[concat(parameters('rootId'), '-', 'corp')]",
+            "online": "[concat(parameters('rootId'), '-', 'online')]"
         },
         // Declaring scopes that will be used for optional deployments, such as platform components (monitoring, networking, identity), policy assignments, subscription placement etc.
         "scopes": {
@@ -731,7 +731,7 @@
             "govMdfcPolicyAssignment": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/policyAssignments/gov/fairfaxDINE-MDFCConfigPolicyAssignment.json')]"
         },
         // Declaring deterministic deployment names
-        "deploymentSuffix": "[concat('-', deployment().location, '-', guid(parameters('enterpriseScaleCompanyPrefix')))]",
+        "deploymentSuffix": "[concat('-', deployment().location, '-', guid(parameters('rootId')))]",
         "deploymentNames": {
             "mgmtGroupDeploymentName": "[take(concat('alz-Mgs', variables('deploymentSuffix')), 64)]",
             "mgmtSubscriptionPlacement": "[take(concat('alz-MgmtSub', variables('deploymentSuffix')), 64)]",
@@ -790,7 +790,7 @@
             "identityPeeringDeploymentName": "[take(concat('alz-IDPeering', variables('deploymentSuffix')), 64)]",
             "identityVwanPeeringDeploymentName": "[take(concat('alz-IDVwanPeering', variables('deploymentSuffix')), 64)]",
             "corpConnectedLzVwanSubs": "[take(concat('alz-CorpConnLzsVwan', variables('deploymentSuffix')), 50)]",
-            "pidCuaDeploymentName": "[take(concat('pid-', variables('cuaid'), '-' , uniqueString(deployment().location, parameters('enterpriseScaleCompanyPrefix'))), 64)]"
+            "pidCuaDeploymentName": "[take(concat('pid-', variables('cuaid'), '-' , uniqueString(deployment().location, parameters('rootId'))), 64)]"
         },
         "esLiteDeploymentNames": {
             "mgmtGroupLiteDeploymentName": "[take(concat('alz-MgsLite', variables('deploymentSuffix')), 64)]",
@@ -815,30 +815,30 @@
         },
         // Declaring deterministic names for Resource Groups that will be created for platform resources
         "platformRgNames": {
-            "mgmtRg": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-mgmt')]",
-            "azOpsRg": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-azops')]",
-            "connectivityRg": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-vnethub-', parameters('connectivityLocation'))]",
-            "ddosRg": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-ddos')]",
-            "privateDnsRg": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-privatedns')]",
-            "identityVnetRg": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-vnet-', parameters('connectivityLocation'))]",
-            "lzVnetRg": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-vnet-', parameters('connectivityLocation'))]"
+            "mgmtRg": "[concat(parameters('rootId'), '-mgmt')]",
+            "azOpsRg": "[concat(parameters('rootId'), '-azops')]",
+            "connectivityRg": "[concat(parameters('rootId'), '-vnethub-', parameters('connectivityLocation'))]",
+            "ddosRg": "[concat(parameters('rootId'), '-ddos')]",
+            "privateDnsRg": "[concat(parameters('rootId'), '-privatedns')]",
+            "identityVnetRg": "[concat(parameters('rootId'), '-vnet-', parameters('connectivityLocation'))]",
+            "lzVnetRg": "[concat(parameters('rootId'), '-vnet-', parameters('connectivityLocation'))]"
         },
         // Declaring deterministic names for platform resources that will be created
         "platformResourceNames": {
-            "logAnalyticsWorkspace": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-law')]",
-            "automationAccount": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-aauto')]",
-            "vpnGwName": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-vpngw-', parameters('connectivityLocation'))]",
-            "erGwName": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-ergw-', parameters('connectivityLocation'))]",
-            "ddosName": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-ddos-', parameters('connectivityLocation'))]",
-            "azFwPolicyName": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-azfwpolicy-', parameters('connectivityLocation'))]",
-            "azFwName": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-fw-', parameters('connectivityLocation'))]",
-            "azErGwIpName": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-erpip-', parameters('connectivityLocation'))]",
-            "hubName": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-hub-', parameters('connectivityLocation'))]",
-            "vwanName": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-vwan-', parameters('connectivityLocation'))]",
-            "azVpnGwIpName": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-gwpip-', parameters('connectivityLocation'))]",
-            "azFwIpName": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-fwpip-', parameters('connectivityLocation'))]",
-            "identityVnet": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-vnet-', parameters('connectivityLocation'))]",
-            "lzVnet": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-vnet-', parameters('connectivityLocation'))]"
+            "logAnalyticsWorkspace": "[concat(parameters('rootId'), '-law')]",
+            "automationAccount": "[concat(parameters('rootId'), '-aauto')]",
+            "vpnGwName": "[concat(parameters('rootId'), '-vpngw-', parameters('connectivityLocation'))]",
+            "erGwName": "[concat(parameters('rootId'), '-ergw-', parameters('connectivityLocation'))]",
+            "ddosName": "[concat(parameters('rootId'), '-ddos-', parameters('connectivityLocation'))]",
+            "azFwPolicyName": "[concat(parameters('rootId'), '-azfwpolicy-', parameters('connectivityLocation'))]",
+            "azFwName": "[concat(parameters('rootId'), '-fw-', parameters('connectivityLocation'))]",
+            "azErGwIpName": "[concat(parameters('rootId'), '-erpip-', parameters('connectivityLocation'))]",
+            "hubName": "[concat(parameters('rootId'), '-hub-', parameters('connectivityLocation'))]",
+            "vwanName": "[concat(parameters('rootId'), '-vwan-', parameters('connectivityLocation'))]",
+            "azVpnGwIpName": "[concat(parameters('rootId'), '-gwpip-', parameters('connectivityLocation'))]",
+            "azFwIpName": "[concat(parameters('rootId'), '-fwpip-', parameters('connectivityLocation'))]",
+            "identityVnet": "[concat(parameters('rootId'), '-vnet-', parameters('connectivityLocation'))]",
+            "lzVnet": "[concat(parameters('rootId'), '-vnet-', parameters('connectivityLocation'))]"
         },
         // Declaring subscriptionId for AzOps
         "azOpsSubscriptionId": "[if(empty(parameters('azOpssubscriptionId')), parameters('singlePlatformSubscriptionId'), parameters('azOpssubscriptionId'))]",
@@ -856,8 +856,8 @@
         },
         // Declaring deterministic resourceId's for ES Lite platform resources (as they will be consolidated into a single platform subscription)
         "deterministicRoleAssignmentGuids": {
-            "ddosForConnectivity": "[take(guid(concat(parameters('enterpriseScaleCompanyPrefix'), 'ddos')), 10)]",
-            "backupForIdentity": "[take(guid(concat(parameters('enterpriseScaleCompanyPrefix'), 'idbackup')), 10)]"
+            "ddosForConnectivity": "[take(guid(concat(parameters('rootId'), 'ddos')), 10)]",
+            "backupForIdentity": "[take(guid(concat(parameters('rootId'), 'idbackup')), 10)]"
         },
         "privateDnsZones": [
             "privatelink.azure-automation.net",
@@ -995,7 +995,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     }
                 }
             }
@@ -1021,7 +1021,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     }
                 }
             }
@@ -1260,7 +1260,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "rgName": {
                         "value": "[variables('platformRgNames').mgmtRg]"
@@ -1326,7 +1326,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "logAnalyticsResourceId": {
                         "value": "[variables('platformResourceIds').logAnalyticsResourceId]"
@@ -1356,7 +1356,7 @@
                         "value": "[variables('platformResourceIds').logAnalyticsResourceId]"
                     },
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     }
                 }
             }
@@ -1383,7 +1383,7 @@
                         "value": "[variables('platformResourceIds').logAnalyticsResourceId]"
                     },
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "emailContactAsc": {
                         "value": "[parameters('emailContactAsc')]"
@@ -1443,7 +1443,7 @@
                         "value": "[variables('platformResourceIds').logAnalyticsResourceId]"
                     },
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "emailContactAsc": {
                         "value": "[parameters('emailContactAsc')]"
@@ -1589,7 +1589,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "ddosPlanResourceId": {
                         "value": "[variables('platformResourceIds').ddosProtectionResourceId]"
@@ -1679,7 +1679,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "ddosPlanResourceId": {
                         "value": "[variables('platformResourceIds').ddosProtectionResourceId]"
@@ -1754,7 +1754,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enableHub": {
                         "value": "[parameters('enableHub')]"
@@ -1888,7 +1888,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "principalId": {
                         "value": "[parameters('principalId')]"
@@ -1971,7 +1971,7 @@
                         "value": "[parameters('gitHubUserNameOrOrg')]"
                     },
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "appId": {
                         "value": "[parameters('appId')]"
@@ -2009,7 +2009,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "location": {
                         "value": "[parameters('connectivityLocation')]"
@@ -2042,7 +2042,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "principalId": {
                         "value": "[if(equals(parameters('enablePrivateDnsZonesForLzs'), 'Yes'), reference(variables('deploymentNames').privateDnsPolicyDeploymentName).outputs.principalId.value, 'na')]"
@@ -2074,7 +2074,7 @@
                         "value": "[variables('platformResourceIds').logAnalyticsResourceId]"
                     },
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "[if(equals(parameters('enableVmMonitoring'), 'Yes'), 'Default', 'DoNotEnforce')]"
@@ -2103,7 +2103,7 @@
                         "value": "[variables('platformResourceIds').logAnalyticsResourceId]"
                     },
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "[if(equals(parameters('enableVmssMonitoring'), 'Yes'), 'Default', 'DoNotEnforce')]"
@@ -2130,7 +2130,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "[if(equals(parameters('enableVmBackup'), 'Yes'), 'Default', 'DoNotEnforce')]"
@@ -2160,7 +2160,7 @@
                         "value": "[variables('platformResourceIds').ddosProtectionResourceId]"
                     },
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "[if(equals(parameters('enableLzDdoS'), 'Yes'), 'Default', 'DoNotEnforce')]"
@@ -2187,7 +2187,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "[if(equals(parameters('denyDatabricksPip'), 'Yes'), 'Default', 'DoNotEnforce')]"
@@ -2214,7 +2214,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "[if(equals(parameters('denyDatabricksSku'), 'Yes'), 'Default', 'DoNotEnforce')]"
@@ -2241,7 +2241,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "[if(equals(parameters('denyDatabricksVnet'), 'Yes'), 'Default', 'DoNotEnforce')]"
@@ -2268,7 +2268,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "[if(equals(parameters('enableaksPolicy'), 'Yes'), 'Default', 'DoNotEnforce')]"
@@ -2367,7 +2367,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "[if(equals(parameters('enableEncryptionInTransit'), 'Yes'), 'Default', 'DoNotEnforce')]"
@@ -2418,7 +2418,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "Default"
@@ -2445,7 +2445,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "Default"
@@ -2496,7 +2496,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "Default"
@@ -2523,7 +2523,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "Default"
@@ -2550,7 +2550,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "Default"
@@ -2608,7 +2608,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "Default"
@@ -2636,7 +2636,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "Default"
@@ -2664,7 +2664,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "Default"
@@ -3008,7 +3008,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     }
                 }
             }
@@ -3173,7 +3173,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "rgName": {
                         "value": "[variables('platformRgNames').mgmtRg]"
@@ -3397,7 +3397,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "ddosPlanResourceId": {
                         "value": "[variables('platformResourceIds').ddosProtectionResourceId]"
@@ -3488,7 +3488,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "ddosPlanResourceId": {
                         "value": "[variables('platformResourceIds').ddosProtectionResourceId]"
@@ -3566,7 +3566,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enableHub": {
                         "value": "[parameters('enableHub')]"
@@ -3657,7 +3657,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "Default"
@@ -3688,7 +3688,7 @@
                 },
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                        "value": "[parameters('rootId')]"
                     },
                     "enforcementMode": {
                         "value": "Default"
