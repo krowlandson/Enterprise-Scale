@@ -143,13 +143,18 @@
                                     "name": "parentManagementGroup",
                                     "type": "Microsoft.Common.DropDown",
                                     "label": "Parent Management Group",
-                                    "filter": true,
-                                    "toolTip": "Specify which management group to use as the parent management group when creating a new root management group.",
                                     "defaultValue": "[steps('basics').resourceScope.managementGroup.displayName]",
+                                    "toolTip": "Specify which management group to use as the parent management group when creating a new root management group.",
+                                    "multiselect": false,
+                                    "selectAll": false,
+                                    "filter": true,
+                                    "filterPlaceholder": "Filter management groups...",
+                                    "multiLine": true,
+                                    "visible": "equals(steps('core').rootManagementGroup.newOrExistingRoot, 'new')",
                                     "constraints": {
-                                        "allowedValues": "[map(filter(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.displayName, '\",\"description\":\"', mgs.name, '\",\"value\":\"', mgs.name, '\"}')) )]"
-                                    },
-                                    "visible": true
+                                        "allowedValues": "[map(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.displayName, '\",\"description\":\"', mgs.name, '\",\"value\":\"', mgs.name, '\"}')))]",
+                                        "required": true
+                                    }
                                 }
                             ],
                             "visible": true
@@ -2028,7 +2033,7 @@
                             "multiselect": true,
                             "selectAll": true,
                             "filter": true,
-                            "filterPlaceholder": "Filter items ...",
+                            "filterPlaceholder": "Filter subscriptions...",
                             "multiLine": true,
                             "visible": "[or(or(equals(steps('landingZones').esLzConnectivity, 'No'), equals(steps('connectivity').enableHub, 'No')), equals(steps('connectivity').enableHub, 'vwan'), equals(steps('landingZones').esLzConnectivity, 'No'))]",
                             "constraints": {
@@ -2064,7 +2069,7 @@
                                             "multiselect": false,
                                             "selectAll": false,
                                             "filter": true,
-                                            "filterPlaceholder": "Filter items ...",
+                                            "filterPlaceholder": "Filter subscriptions...",
                                             "multiLine": false,
                                             "constraints": {
                                                 "allowedValues": "[map(steps('basics').getSubscriptions.value, (sub) => parse(concat('{\"label\":\"', sub.displayName, '\",\"description\":\"', sub.subscriptionId, '\",\"value\":\"', toLower(sub.subscriptionId), '\"}')) )]",
@@ -2114,7 +2119,7 @@
                             "multiselect": true,
                             "selectAll": true,
                             "filter": true,
-                            "filterPlaceholder": "Filter items ...",
+                            "filterPlaceholder": "Filter subscriptions...",
                             "multiLine": true,
                             "visible": true,
                             "constraints": {
