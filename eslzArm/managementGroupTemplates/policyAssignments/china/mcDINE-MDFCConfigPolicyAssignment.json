@@ -8,6 +8,13 @@
                 "description": "Provide the ESLZ company prefix to the intermediate root management group containing the policy definitions."
             }
         },
+        "rootId": {
+            "type": "string",
+            "maxLength": 10,
+            "metadata": {
+                "description": "Provide a prefix (max 10 characters, unique at tenant-scope) for the Management Group hierarchy and other resources created as part of the Azure landing zone deployment."
+            }
+        },
         "enforcementMode": {
             "type": "string",
             "allowedValues": [
@@ -64,7 +71,7 @@
         },
         "rbacOwner": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
         "roleAssignmentNames": {
-            "deployAzureSecurity": "[guid(concat(parameters('toplevelManagementGroupPrefix'),variables('policyAssignmentNames').azureSecurity))]"
+            "deployAzureSecurity": "[guid(concat(parameters('topLevelManagementGroupPrefix'),variables('policyAssignmentNames').azureSecurity))]"
         }
     },
     "resources": [
@@ -89,7 +96,7 @@
                         "value": "[parameters('logAnalyticsResourceId')]"
                     },
                     "ascExportResourceGroupName": {
-                        "value": "[concat(parameters('topLevelManagementGroupPrefix'), '-asc-export')]"
+                        "value": "[concat(parameters('rootId'), '-asc-export')]"
                     },
                     "ascExportResourceGroupLocation": {
                         "value": "[deployment().location]"

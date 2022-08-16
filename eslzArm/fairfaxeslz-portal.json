@@ -2401,7 +2401,7 @@
                 "erRegionalOrAz": "[steps('esConnectivityGoalState').esErRegionalOrAz]",
                 "erAzSku": "[steps('esConnectivityGoalState').esErAzSku]",
                 "erRegionalSku": "[if(empty(steps('esConnectivityGoalState').esErRegionalSku), steps('esConnectivityGoalState').esErNoAzSku, steps('esConnectivityGoalState').esErRegionalSku)]",
-                "singlePlatformSubscriptionId": "[steps('lzSettings').esSingleSubSection.esSingleSub.subscriptionId]",
+                "platformSubscriptionId": "[steps('lzSettings').esSingleSubSection.esSingleSub.subscriptionId]",
                 "expressRouteScaleUnit": "[steps('esConnectivityGoalState').esVwanErScaleUnits]",
                 "vpnGateWayScaleUnit": "[steps('esConnectivityGoalState').esVwanGwScaleUnits]",
                 "enablePrivateDnsZones": "[steps('esConnectivityGoalState').esPrivateDns]",

@@ -104,61 +104,6 @@
                     "bladeTitle": "ALZ - Core Settings",
                     "elements": [
                         {
-                            "name": "rootManagementGroup",
-                            "type": "Microsoft.Common.Section",
-                            "label": "Root management group configuration",
-                            "elements": [
-                                {
-                                    "name": "message",
-                                    "type": "Microsoft.Common.InfoBox",
-                                    "visible": true,
-                                    "options": {
-                                        "icon": "Info",
-                                        "text": "By default, this custom template will create the full reference Azure landing zone management group hierarchy under the management group selected in the previous \"Deployment settings\" step. To create a new \"root\" management group, select \"Create new (recommended)\". To use an existing management group, select \"Use existing\".",
-                                        "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-group-and-subscription-organization"
-                                    }
-                                },
-                                {
-                                    "name": "newOrExisting",
-                                    "type": "Microsoft.Common.OptionsGroup",
-                                    "label": "Create new or use existing root management group",
-                                    "defaultValue": "Create new (recommended)",
-                                    "toolTip": "The recommended option is to create a new root management group under the Tenant Root Group",
-                                    "constraints": {
-                                        "allowedValues": [
-                                            {
-                                                "label": "Create new (recommended)",
-                                                "value": "new"
-                                            },
-                                            {
-                                                "label": "Use existing",
-                                                "value": "existing"
-                                            }
-                                        ],
-                                        "required": true
-                                    },
-                                    "visible": true
-                                },
-                                {
-                                    "name": "parentManagementGroup",
-                                    "type": "Microsoft.Common.DropDown",
-                                    "label": "Parent Management Group",
-                                    "defaultValue": "[steps('basics').resourceScope.managementGroup.displayName]",
-                                    "toolTip": "Specify which management group to use as the parent management group when creating a new root management group.",
-                                    "multiselect": false,
-                                    "selectAll": false,
-                                    "filter": true,
-                                    "filterPlaceholder": "Filter management groups...",
-                                    "multiLine": true,
-                                    "visible": "[equals(steps('core').rootManagementGroup.newOrExisting, 'new')]",
-                                    "constraints": {
-                                        "allowedValues": "[map(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.properties.displayName, '\",\"description\":\"', mgs.name, '\",\"value\":\"', mgs.name, '\"}')))]"
-                                    }
-                                }
-                            ],
-                            "visible": true
-                        },
-                        {
                             "name": "naming",
                             "type": "Microsoft.Common.Section",
                             "label": "Resource naming",
@@ -175,6 +120,61 @@
                                         "validationMessage": "The prefix must be 1-10 characters."
                                     },
                                     "visible": true
+                                }
+                            ],
+                            "visible": true
+                        },
+                        {
+                            "name": "rootManagementGroup",
+                            "type": "Microsoft.Common.Section",
+                            "label": "Root management group configuration",
+                            "elements": [
+                                {
+                                    "name": "message",
+                                    "type": "Microsoft.Common.InfoBox",
+                                    "visible": true,
+                                    "options": {
+                                        "icon": "Info",
+                                        "text": "By default, this custom template will create the full reference Azure landing zone management group hierarchy under the management group selected in the previous \"Deployment settings\" step. To create a new \"root\" management group, select \"Create new (recommended)\". To use an existing management group, select \"Use existing\".",
+                                        "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-group-and-subscription-organization"
+                                    }
+                                },
+                                {
+                                    "name": "createNewRoot",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Create new or use existing root management group",
+                                    "defaultValue": "Create new (recommended)",
+                                    "toolTip": "The recommended option is to create a new root management group.",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Create new (recommended)",
+                                                "value": true
+                                            },
+                                            {
+                                                "label": "Use existing",
+                                                "value": false
+                                            }
+                                        ],
+                                        "required": true
+                                    },
+                                    "visible": true
+                                },
+                                {
+                                    "name": "parentManagementGroupId",
+                                    "type": "Microsoft.Common.DropDown",
+                                    "label": "Parent Management Group",
+                                    "defaultValue": "[steps('basics').resourceScope.managementGroup.displayName]",
+                                    "toolTip": "Specify which management group to use as the parent management group when creating a new root management group. This would usually be the \"Tenant Root Group\".",
+                                    "multiselect": false,
+                                    "selectAll": false,
+                                    "filter": true,
+                                    "filterPlaceholder": "Filter management groups...",
+                                    "multiLine": true,
+                                    "visible": "[not(steps('core').rootManagementGroup.createNewRoot)]",
+                                    "constraints": {
+                                        "allowedValues": "[map(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.properties.displayName, '\",\"description\":\"', mgs.name, '\",\"value\":\"', mgs.name, '\"}')))]"
+                                    }
                                 }
                             ],
                             "visible": true
@@ -2625,7 +2625,9 @@
         "outputs": {
             "parameters": {
                 "rootId": "[steps('core').naming.rootId]",
-                "singlePlatformSubscriptionId": "[steps('core').singleSubscription.selector.subscriptionId]",
+                "createNewRoot": "[steps('core').rootManagementGroup.createNewRoot]",
+                "parentManagementGroupId": "[coalesce(steps('core').rootManagementGroup.createNewRoot), steps('basics').resourceScope.managementGroup.id]",
+                "platformSubscriptionId": "[steps('core').singleSubscription.selector.subscriptionId]",
                 "telemetryOptOut": "[steps('core').cuaSection.telemetryOptOut]",
                 "enableLogAnalytics": "[steps('management').enableLogAnalytics]",
                 "retentionInDays": "[string(steps('management').retentionInDays)]",

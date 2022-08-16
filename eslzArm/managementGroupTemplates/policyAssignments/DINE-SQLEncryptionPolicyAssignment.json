@@ -29,7 +29,7 @@
         },
         "rbacOwner": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
         "roleAssignmentNames": {
-            "deploySqlEncryption": "[guid(concat(parameters('toplevelManagementGroupPrefix'),variables('policyAssignmentNames').deploySqlEncryption))]"
+            "deploySqlEncryption": "[guid(concat(parameters('topLevelManagementGroupPrefix'),variables('policyAssignmentNames').deploySqlEncryption))]"
         }
     },
     "resources": [
