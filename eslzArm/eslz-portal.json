@@ -175,6 +175,14 @@
                                     "constraints": {
                                         "allowedValues": "[map(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.properties.displayName, '\",\"description\":\"', mgs.name, '\",\"value\":\"', mgs.name, '\"}')))]"
                                     }
+                                },
+                                {
+                                    "name": "resourceScope",
+                                    "type": "Microsoft.Common.InfoBox",
+                                    "visible": true,
+                                    "options": {
+                                        "text": "[string(steps('basics').resourceScope)]"
+                                    }
                                 }
                             ],
                             "visible": true
@@ -2712,8 +2720,7 @@
                 "denyIpForwarding": "[steps('landingZones').denyIpForwarding]",
                 "enableSqlEncryption": "[steps('landingZones').enableSqlEncryption]",
                 "enableSqlAudit": "[steps('landingZones').enableSqlAudit]",
-                "enableStorageHttps": "[steps('landingZones').enableStorageHttps]",
-                "resourceScope": "[steps('basics').resourceScope]"
+                "enableStorageHttps": "[steps('landingZones').enableStorageHttps]"
             },
             "kind": "ManagementGroup",
             "location": "[steps('basics').resourceScope.location.name]",
