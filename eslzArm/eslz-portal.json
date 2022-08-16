@@ -138,14 +138,7 @@
                                         "required": true
                                     },
                                     "visible": true
-                                }
-                            ],
-                            "visible": true
-                        },
-                        {
-                            "name": "rootManagementGroupParent",
-                            "type": "Microsoft.Common.Section",
-                            "elements": [
+                                },
                                 {
                                     "name": "parentManagementGroup",
                                     "type": "Microsoft.Common.DropDown",
@@ -163,7 +156,7 @@
                                     }
                                 }
                             ],
-                            "visible": "[equals(steps('core').rootManagementGroup.newOrExisting, 'new')]"
+                            "visible": true
                         },
                         {
                             "name": "naming",
