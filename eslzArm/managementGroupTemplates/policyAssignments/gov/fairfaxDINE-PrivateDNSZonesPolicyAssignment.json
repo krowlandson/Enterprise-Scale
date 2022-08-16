@@ -68,7 +68,7 @@
     "resources": [
         {
             "type": "Microsoft.Authorization/policyAssignments",
-            "apiVersion": "2019-09-01",
+            "apiVersion": "2021-06-01",
             "name": "[variables('policyAssignmentNames').deployPrivateDnsZones]",
             "location": "[deployment().location]",
             "identity": {
@@ -142,7 +142,7 @@
         },
         {
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2019-04-01-preview",
+            "apiVersion": "2020-10-01-preview",
             "name": "[variables('roleAssignmentNames').deployPrivateDnsZones]",
             "dependsOn": [
                 "[variables('policyAssignmentNames').deployPrivateDnsZones]"
@@ -150,14 +150,14 @@
             "properties": {
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[variables('policyRbac')]",
-                "principalId": "[toLower(reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deployPrivateDnsZones), '2019-09-01', 'Full').identity.principalId)]"
+                "principalId": "[toLower(reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deployPrivateDnsZones), '2021-06-01', 'Full').identity.principalId)]"
             }
         }
     ],
     "outputs": {
         "principalId": {
             "type": "string",
-            "value": "[reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deployPrivateDnsZones), '2019-09-01', 'Full').identity.principalId]"
+            "value": "[reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deployPrivateDnsZones), '2021-06-01', 'Full').identity.principalId]"
         }
     }
 }

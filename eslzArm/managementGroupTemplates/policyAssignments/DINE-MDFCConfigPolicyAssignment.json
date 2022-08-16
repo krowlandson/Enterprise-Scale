@@ -133,7 +133,7 @@
     "resources": [
         {
             "type": "Microsoft.Authorization/policyAssignments",
-            "apiVersion": "2019-09-01",
+            "apiVersion": "2021-06-01",
             "name": "[variables('policyAssignmentNames').azureSecurity]",
             "location": "[deployment().location]",
             "identity": {
@@ -192,15 +192,15 @@
         },
         {
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2019-04-01-preview",
-            "name": "[variables('roleAssignmentNames').deployAzureSecurity]",
+            "apiVersion": "2020-10-01-preview",
+            "name": "[guid(concat(variables('roleAssignmentNames').deployAzureSecurity, reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').azureSecurity), '2021-06-01', 'Full' ).identity.principalId))]",
             "dependsOn": [
                 "[variables('policyAssignmentNames').azureSecurity]"
             ],
             "properties": {
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[concat('/providers/Microsoft.Authorization/roleDefinitions/', variables('rbacOwner'))]",
-                "principalId": "[toLower(reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').azureSecurity), '2019-09-01', 'Full' ).identity.principalId)]"
+                "principalId": "[reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').azureSecurity), '2021-06-01', 'Full' ).identity.principalId]"
             }
         }
         

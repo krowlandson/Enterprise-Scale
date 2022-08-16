@@ -40,7 +40,7 @@
     "resources": [
         {
             "type": "Microsoft.Authorization/policyAssignments",
-            "apiVersion": "2019-09-01",
+            "apiVersion": "2021-06-01",
             "name": "[variables('policyAssignmentNames').deployDdoS]",
             "location": "[deployment().location]",
             "identity": {
@@ -63,15 +63,15 @@
         },
         {
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2019-04-01-preview",
-            "name": "[variables('roleAssignmentNames').deployDdoS]",
+            "apiVersion": "2020-10-01-preview",
+            "name": "[guid(concat(variables('roleAssignmentNames').deployDdoS, reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deployDdoS), '2021-06-01', 'Full' ).identity.principalId))]",
             "dependsOn": [
                 "[resourceId('Microsoft.Authorization/policyAssignments', variables('policyAssignmentNames').deployDdoS)]"
             ],
             "properties": {
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[concat('/providers/Microsoft.Authorization/roleDefinitions/', variables('rbacNetworkContributor'))]",
-                "principalId": "[toLower(reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deployDdoS), '2019-09-01', 'Full' ).identity.principalId)]"
+                "principalId": "[reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deployDdoS), '2021-06-01', 'Full' ).identity.principalId]"
             }
         }
            ],

@@ -34,7 +34,7 @@
     "resources": [
         {
             "type": "Microsoft.Authorization/policyAssignments",
-            "apiVersion": "2019-09-01",
+            "apiVersion": "2021-06-01",
             "name": "[variables('policyAssignmentNames').deploySqlAuditing]",
             "location": "[deployment().location]",
             "identity": {
@@ -49,15 +49,15 @@
         },
         {
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2019-04-01-preview",
-            "name": "[variables('roleAssignmentNames').deploySqlAuditing]",
+            "apiVersion": "2020-10-01-preview",
+            "name": "[guid(concat(variables('roleAssignmentNames').deploySqlAuditing, reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deploySqlAuditing), '2021-06-01', 'Full' ).identity.principalId))]",
             "dependsOn": [
                 "[variables('policyAssignmentNames').deploySqlAuditing]"
             ],
             "properties": {
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[concat('/providers/Microsoft.Authorization/roleDefinitions/', variables('rbacOwner'))]",
-                "principalId": "[reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deploySqlAuditing), '2019-09-01', 'Full' ).identity.principalId]"
+                "principalId": "[reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deploySqlAuditing), '2021-06-01', 'Full' ).identity.principalId]"
             }
         }
     ],

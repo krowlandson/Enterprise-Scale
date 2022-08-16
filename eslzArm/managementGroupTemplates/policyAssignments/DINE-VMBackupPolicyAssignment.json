@@ -35,7 +35,7 @@
     "resources": [
         {
             "type": "Microsoft.Authorization/policyAssignments",
-            "apiVersion": "2019-09-01",
+            "apiVersion": "2021-06-01",
             "name": "[variables('policyAssignmentNames').deployVmBackup]",
             "location": "[deployment().location]",
             "identity": {
@@ -51,15 +51,15 @@
         },
         {
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2019-04-01-preview",
-            "name": "[variables('roleAssignmentNames').deployVmBackup]",
+            "apiVersion": "2020-10-01-preview",
+            "name": "[guid(concat(variables('roleAssignmentNames').deployVmBackup, reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deployVmBackup), '2021-06-01', 'Full' ).identity.principalId))]",
             "dependsOn": [
                 "[variables('policyAssignmentNames').deployVmBackup]"
             ],
             "properties": {
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[concat('/providers/Microsoft.Authorization/roleDefinitions/', variables('rbacOwner'))]",
-                "principalId": "[toLower(reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deployVmBackup), '2019-09-01', 'Full' ).identity.principalId)]"
+                "principalId": "[reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deployVmBackup), '2021-06-01', 'Full' ).identity.principalId]"
             }
         }        
     ],
