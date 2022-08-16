@@ -151,7 +151,7 @@
                                     "type": "Microsoft.Common.TextBlock",
                                     "visible": true,
                                     "options": {
-                                        "text": "[steps('basics').getManagementGroups.value]"
+                                        "text": "[string(steps('basics').getManagementGroups.value)]"
                                     }
                                 },
                                 {
