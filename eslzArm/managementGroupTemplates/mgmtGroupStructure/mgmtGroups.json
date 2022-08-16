@@ -71,7 +71,7 @@
                 "displayName": "[parameters('topLevelManagementGroupPrefix')]",
                 "details": {
                     "parent": {
-                        "id": "[concat('Microsoft.Management/managementGroups/', parameters('parentManagementGroupId'))]"
+                        "id": "[tenantResourceId('Microsoft.Management/managementGroups/', parameters('parentManagementGroupId'))]"
                     }
                 }
             }
@@ -89,7 +89,7 @@
                 "displayName": "[variables('enterpriseScaleManagementGroups').platform]",
                 "details": {
                     "parent": {
-                        "id": "[concat('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]"
+                        "id": "[tenantResourceId('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]"
                     }
                 }
             }
@@ -107,7 +107,7 @@
                 "displayName": "[variables('enterpriseScaleManagementGroups').landingZone]",
                 "details": {
                     "parent": {
-                        "id": "[concat('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]"
+                        "id": "[tenantResourceId('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]"
                     }
                 }
             }
@@ -125,7 +125,7 @@
                 "displayName": "[variables('enterpriseScaleManagementGroups').sandboxes]",
                 "details": {
                     "parent": {
-                        "id": "[concat('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]"
+                        "id": "[tenantResourceId('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]"
                     }
                 }
             }
@@ -143,7 +143,7 @@
                 "displayName": "[variables('enterpriseScaleManagementGroups').decommissioned]",
                 "details": {
                     "parent": {
-                        "id": "[concat('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]"
+                        "id": "[tenantResourceId('Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'))]"
                     }
                 }
             }
@@ -166,7 +166,7 @@
                 "displayName": "[concat(parameters('rootId'), '-', parameters('platformMgs')[copyIndex()])]",
                 "details": {
                     "parent": {
-                        "id": "[concat('Microsoft.Management/managementGroups/', variables('enterpriseScaleManagementGroups').platform)]"
+                        "id": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('enterpriseScaleManagementGroups').platform)]"
                     }
                 }
             }
@@ -189,7 +189,7 @@
                 "displayName": "[concat(parameters('rootId'), '-', parameters('landingZoneMgs')[copyIndex()])]",
                 "details": {
                     "parent": {
-                        "id": "[concat('Microsoft.Management/managementGroups/', variables('enterpriseScaleManagementGroups').landingZone)]"
+                        "id": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('enterpriseScaleManagementGroups').landingZone)]"
                     }
                 }
             }
