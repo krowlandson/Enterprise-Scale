@@ -25,7 +25,7 @@
     },
     "variables": {
         "policyDefinitions": {
-             "deployDoS": "/providers/Microsoft.Authorization/policyDefinitions/94de2ad3-e0c1-4caf-ad78-5d47bbc83d3d"
+             "deployDdoS": "/providers/Microsoft.Authorization/policyDefinitions/94de2ad3-e0c1-4caf-ad78-5d47bbc83d3d"
         },
         "policyAssignmentNames": {
             "deployDdoS": "Enable-DDoS-VNET",
@@ -49,7 +49,7 @@
             "properties": {
                 "description": "[variables('policyAssignmentNames').description]",
                 "displayName": "[variables('policyAssignmentNames').displayName]",
-                "policyDefinitionId": "[variables('policyDefinitions').deployDoS]",
+                "policyDefinitionId": "[variables('policyDefinitions').deployDdoS]",
                 "enforcementMode": "[parameters('enforcementMode')]",
                 "parameters": {
                     "ddosPlan": {
@@ -64,7 +64,7 @@
         {
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-10-01-preview",
-            "name": "[guid(concat(variables('roleAssignmentNames').deployDdoS, reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deployDdoS), '2021-06-01', 'Full' ).identity.principalId))]",
+            "name": "[variables('roleAssignmentNames').deployDdoS]",
             "dependsOn": [
                 "[resourceId('Microsoft.Authorization/policyAssignments', variables('policyAssignmentNames').deployDdoS)]"
             ],

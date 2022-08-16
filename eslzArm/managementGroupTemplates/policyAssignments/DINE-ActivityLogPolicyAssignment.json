@@ -64,7 +64,7 @@
         {
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-10-01-preview",
-            "name": "[guid(concat(variables('roleAssignmentNames').deployAzureActivityLog, reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').azureActivityLog), '2021-06-01', 'Full' ).identity.principalId))]",
+            "name": "[variables('roleAssignmentNames').deployAzureActivityLog]",
             "dependsOn": [
                 "[variables('policyAssignmentNames').azureActivityLog]"
             ],

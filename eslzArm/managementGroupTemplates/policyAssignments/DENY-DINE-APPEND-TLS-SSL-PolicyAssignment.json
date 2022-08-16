@@ -51,7 +51,7 @@
         {
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-10-01-preview",
-            "name": "[guid(concat(variables('roleAssignmentNames').deployEncryptionInTransit, reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deployEncryptionInTransit), '2021-06-01', 'Full' ).identity.principalId))]",
+            "name": "[variables('roleAssignmentNames').deployEncryptionInTransit]",
             "dependsOn": [
                 "[resourceId('Microsoft.Authorization/policyAssignments', variables('policyAssignmentNames').deployEncryptionInTransit)]"
             ],

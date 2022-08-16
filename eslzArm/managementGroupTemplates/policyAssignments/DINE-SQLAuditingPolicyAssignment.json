@@ -50,7 +50,7 @@
         {
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-10-01-preview",
-            "name": "[guid(concat(variables('roleAssignmentNames').deploySqlAuditing, reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deploySqlAuditing), '2021-06-01', 'Full' ).identity.principalId))]",
+            "name": "[variables('roleAssignmentNames').deploySqlAuditing]",
             "dependsOn": [
                 "[variables('policyAssignmentNames').deploySqlAuditing]"
             ],

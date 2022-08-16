@@ -147,7 +147,7 @@
         {
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-10-01-preview",
-            "name": "[guid(concat(variables('roleAssignmentNames').deployPrivateDnsZones, reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deployPrivateDnsZones), '2021-06-01', 'Full').identity.principalId))]",
+            "name": "[variables('roleAssignmentNames').deployPrivateDnsZones]",
             "dependsOn": [
                 "[variables('policyAssignmentNames').deployPrivateDnsZones]"
             ],

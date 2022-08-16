@@ -150,7 +150,7 @@
             "properties": {
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[variables('policyRbac')]",
-                "principalId": "[toLower(reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deployPrivateDnsZones), '2021-06-01', 'Full').identity.principalId)]"
+                "principalId": "[reference(concat('/providers/Microsoft.Authorization/policyAssignments/', variables('policyAssignmentNames').deployPrivateDnsZones), '2021-06-01', 'Full').identity.principalId]"
             }
         }
     ],
