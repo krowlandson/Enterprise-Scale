@@ -175,14 +175,6 @@
                                     "constraints": {
                                         "allowedValues": "[map(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.properties.displayName, '\",\"description\":\"', mgs.name, '\",\"value\":\"', mgs.name, '\"}')))]"
                                     }
-                                },
-                                {
-                                    "name": "resourceScope",
-                                    "type": "Microsoft.Common.InfoBox",
-                                    "visible": true,
-                                    "options": {
-                                        "text": "[string(steps('basics').resourceScope)]"
-                                    }
                                 }
                             ],
                             "visible": true
@@ -2634,7 +2626,7 @@
             "parameters": {
                 "rootId": "[steps('core').naming.rootId]",
                 "createNewRoot": "[steps('core').rootManagementGroup.createNewRoot]",
-                "parentManagementGroupId": "[coalesce(steps('core').rootManagementGroup.parentManagementGroupId, steps('basics').resourceScope.managementGroup.id)]",
+                "parentManagementGroupId": "[coalesce(steps('core').rootManagementGroup.parentManagementGroupId, steps('basics').resourceScope.managementGroup.name)]",
                 "platformSubscriptionId": "[steps('core').singleSubscription.selector.subscriptionId]",
                 "telemetryOptOut": "[steps('core').cuaSection.telemetryOptOut]",
                 "enableLogAnalytics": "[steps('management').enableLogAnalytics]",
