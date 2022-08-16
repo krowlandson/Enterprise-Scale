@@ -62,10 +62,11 @@
     "resources": [
         {
             // Create top level management group under tenant root
-            "condition": "[parameters('createNewRoot')]",
+            "name": "[parameters('topLevelManagementGroupPrefix')]",
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
-            "name": "[parameters('topLevelManagementGroupPrefix')]",
+            "scope": "/",
+            "condition": "[parameters('createNewRoot')]",
             "properties": {
                 "displayName": "[parameters('topLevelManagementGroupPrefix')]",
                 "details": {
@@ -77,9 +78,10 @@
         },
         {
             // Create management group for platform management groups
+            "name": "[variables('enterpriseScaleManagementGroups').platform]",
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
-            "name": "[variables('enterpriseScaleManagementGroups').platform]",
+            "scope": "/",
             "dependsOn": [
                 "[parameters('topLevelManagementGroupPrefix')]"
             ],
@@ -94,9 +96,10 @@
         },
         {
             // Create management group for landing zones
+            "name": "[variables('enterpriseScaleManagementGroups').landingZone]",
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
-            "name": "[variables('enterpriseScaleManagementGroups').landingZone]",
+            "scope": "/",
             "dependsOn": [
                 "[parameters('topLevelManagementGroupPrefix')]"
             ],
@@ -111,9 +114,10 @@
         },
         {
             // Create management group for sandbox subscriptions
+            "name": "[variables('enterpriseScaleManagementGroups').sandboxes]",
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
-            "name": "[variables('enterpriseScaleManagementGroups').sandboxes]",
+            "scope": "/",
             "dependsOn": [
                 "[parameters('topLevelManagementGroupPrefix')]"
             ],
@@ -128,9 +132,10 @@
         },
         {
             // Create management group for decommissioned subscriptions
+            "name": "[variables('enterpriseScaleManagementGroups').decommissioned]",
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
-            "name": "[variables('enterpriseScaleManagementGroups').decommissioned]",
+            "scope": "/",
             "dependsOn": [
                 "[parameters('topLevelManagementGroupPrefix')]"
             ],
@@ -145,10 +150,11 @@
         },
         {
             // Create child management groups for platform resources
-            "condition": "[not(empty(parameters('platformMgs')))]",
+            "name": "[concat(parameters('rootId'), '-', parameters('platformMgs')[copyIndex()])]",
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
-            "name": "[concat(parameters('rootId'), '-', parameters('platformMgs')[copyIndex()])]",
+            "scope": "/",
+            "condition": "[not(empty(parameters('platformMgs')))]",
             "dependsOn": [
                 "[variables('enterpriseScaleManagementGroups').platform]"
             ],
@@ -167,10 +173,11 @@
         },
         {
             // Create child management groups for landing zones
-            "condition": "[not(empty(parameters('landingZoneMgs')))]",
+            "name": "[concat(parameters('rootId'), '-', parameters('landingZoneMgs')[copyIndex()])]",
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
-            "name": "[concat(parameters('rootId'), '-', parameters('landingZoneMgs')[copyIndex()])]",
+            "scope": "/",
+            "condition": "[not(empty(parameters('landingZoneMgs')))]",
             "dependsOn": [
                 "[variables('enterpriseScaleManagementGroups').landingZone]"
             ],
