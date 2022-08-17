@@ -180,7 +180,7 @@
                                     "name": "preStageMgsOnly",
                                     "type": "Microsoft.Common.OptionsGroup",
                                     "label": "Pre-stage management groups only",
-                                    "defaultValue": "No",
+                                    "defaultValue": "No (default)",
                                     "toolTip": "Select \"Yes\" to only create the management group hierarchy. Useful when user permissions are limited.",
                                     "constraints": {
                                         "allowedValues": [
@@ -307,7 +307,6 @@
                         "postValidation": ""
                     },
                     "bladeTitle": "ALZ - Management Settings",
-                    "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]",
                     "elements": [
                         {
                             "name": "multiPlatformMgmtSub",
@@ -850,7 +849,6 @@
                     "label": "Platform DevOps and automation",
                     "subLabel": {},
                     "bladeTitle": "ALZ - Automation Settings",
-                    "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]",
                     "elements": [
                         {
                             "name": "info",
@@ -1010,7 +1008,6 @@
                         "postValidation": ""
                     },
                     "bladeTitle": "ALZ - Connectivity Settings",
-                    "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]",
                     "elements": [
                         {
                             "name": "multiPlatformConnectivitySub",
@@ -1801,7 +1798,6 @@
                         "postValidation": ""
                     },
                     "bladeTitle": "ALZ - Identity Settings",
-                    "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]",
                     "elements": [
                         {
                             "name": "multiPlatformIdentitySub",
@@ -2005,7 +2001,6 @@
                         "postValidation": ""
                     },
                     "bladeTitle": "ALZ - Landing Zones Settings",
-                    "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]",
                     "elements": [
                         {
                             "name": "infoBox1",
@@ -2053,7 +2048,6 @@
                             "name": "esCorpLzSub",
                             "type": "Microsoft.Common.DropDown",
                             "label": "Corp landing zone subscriptions (optional)",
-                            "defaultValue": "",
                             "toolTip": "",
                             "multiselect": true,
                             "selectAll": true,
@@ -2089,7 +2083,6 @@
                                             "name": "esLzConnectedSub",
                                             "type": "Microsoft.Common.DropDown",
                                             "label": "Landing zone subscription",
-                                            "defaultValue": "",
                                             "toolTip": "",
                                             "multiselect": false,
                                             "selectAll": false,
