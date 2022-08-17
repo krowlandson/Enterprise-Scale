@@ -2625,7 +2625,7 @@
         "outputs": {
             "parameters": {
                 "rootId": "[steps('core').naming.rootId]",
-                "createNewRoot": "[steps('core').rootManagementGroup.createNewRoot]",
+                "createNewRoot": "[coalesce(steps('core').rootManagementGroup.createNewRoot, $false)]",
                 "parentManagementGroupId": "[coalesce(steps('core').rootManagementGroup.parentManagementGroupId, steps('basics').resourceScope.managementGroup.name)]",
                 "platformSubscriptionId": "[steps('core').singleSubscription.selector.subscriptionId]",
                 "telemetryOptOut": "[steps('core').cuaSection.telemetryOptOut]",
