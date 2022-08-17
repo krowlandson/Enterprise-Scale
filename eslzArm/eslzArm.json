@@ -1101,7 +1101,7 @@
             "name": "[variables('deploymentNames').policyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "scope": "[variables('scopes').eslzRootManagementGroup]",
+            // "scope": "[variables('scopes').eslzRootManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
                 "[variables('mgmtGroupsLevel0')['eslzRoot']]"
