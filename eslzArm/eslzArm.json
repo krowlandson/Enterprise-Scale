@@ -23,6 +23,13 @@
                 "description": "Specifies the parent management group ID when creating a new root management group or the management group ID of an existing root management group. If not specified, will default to the \"Tenant Root Group\"."
             }
         },
+        "preStageMgsOnly": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Determines whether to deploy all resources, or just the management group hierarchy. This settings allows the template to be deployed by identities with limited permissions in the target tenant."
+            }
+        },
         "platformSubscriptionId": {
             "type": "string",
             "defaultValue": "",
@@ -673,26 +680,35 @@
         // Determining the topLevelManagementGroupPrefix
         "topLevelManagementGroupPrefix": "[if(parameters('createNewRoot'), parameters('rootId'), parameters('parentManagementGroupId'))]",
         // Declaring the prescriptive management group structure that will be used in the scope construction
-        "mgmtGroups": {
-            "eslzRoot": "[variables('topLevelManagementGroupPrefix')]",
+        "mgmtGroupsLevel0": {
+            "eslzRoot": "[variables('topLevelManagementGroupPrefix')]"
+        },
+        "mgmtGroupsLevel1": {
             "platform": "[concat(parameters('rootId'), '-', 'platform')]",
+            "landingZones": "[concat(parameters('rootId'), '-', 'landingzones')]",
+            "decommissioned": "[concat(parameters('rootId'), '-', 'decommissioned')]",
+            "sandboxes": "[concat(parameters('rootId'), '-', 'sandboxes')]"
+        },
+        "mgmtGroupsPlatform": {
             "management": "[concat(parameters('rootId'), '-', 'management')]",
             "connectivity": "[concat(parameters('rootId'), '-', 'connectivity')]",
-            "identity": "[concat(parameters('rootId'), '-', 'identity')]",
-            "lzs": "[concat(parameters('rootId'), '-', 'landingzones')]",
+            "identity": "[concat(parameters('rootId'), '-', 'identity')]"
+        },
+        "mgmtGroupsLandingZones": {
             "corp": "[concat(parameters('rootId'), '-', 'corp')]",
             "online": "[concat(parameters('rootId'), '-', 'online')]"
         },
+        "mgmtGroups": "[union(variables('mgmtGroupsLevel0'), variables('mgmtGroupsLevel1'), variables('mgmtGroupsPlatform'), variables('mgmtGroupsLandingZones'))]",
         // Declaring scopes that will be used for optional deployments, such as platform components (monitoring, networking, identity), policy assignments, subscription placement etc.
         "scopes": {
-            "eslzRootManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups').eslzRoot)]",
-            "platformManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups').platform)]",
-            "managementManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups').management)]",
-            "connectivityManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups').connectivity)]",
-            "identityManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups').identity)]",
-            "lzsManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups').lzs)]",
-            "corpManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups').corp)]",
-            "onlineManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups').online)]"
+            "eslzRootManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['eslzRoot'])]",
+            "platformManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['platform'])]",
+            "managementManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['management'])]",
+            "connectivityManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['connectivity'])]",
+            "identityManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['identity'])]",
+            "landingZonesManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['landingZones'])]",
+            "corpManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['corp'])]",
+            "onlineManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['online'])]"
         },
         // Declaring all required deployment uri's used for deployments of composite ARM templates for ESLZ
         "azPrivateDnsPolicyAssignmentMapping": {
@@ -811,7 +827,6 @@
             "pidCuaDeploymentName": "[take(concat('pid-', variables('cuaid'), '-' , uniqueString(deployment().location, parameters('rootId'))), 64)]"
         },
         "esLiteDeploymentNames": {
-            "mgmtGroupLiteDeploymentName": "[take(concat('alz-MgsLite', variables('deploymentSuffix')), 64)]",
             "rdpFromInternetIdentityLitePolicyDeploymentName": "[take(concat('alz-RDPIdentity', variables('deploymentSuffix')), 64)]",
             "azBackupIdentityLitePolicyDeploymentName": "[take(concat('alz-AzBackupIdentity', variables('deploymentSuffix')), 64)]",
             "subnetNsgIdentityLitePolicyDeploymentName": "[take(concat('alz-SubnetNsgIdentity', variables('deploymentSuffix')), 64)]",
@@ -996,30 +1011,84 @@
             The following deployment will create the management group structure for ESLZ and ensure the sustainable, scalable architecture
         */
         {
-            // Creating the ESLZ management group structure
-            "condition": "[empty(parameters('platformSubscriptionId'))]",
-            "name": "[variables('deploymentNames').mgmtGroupDeploymentName]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
-            "location": "[deployment().location]",
+            // Create top level management group under tenant root
+            "condition": "[parameters('createNewRoot')]",
+            "name": "[variables('mgmtGroupsLevel0')['eslzRoot']]",
+            "type": "Microsoft.Management/managementGroups",
+            "apiVersion": "2020-05-01",
+            "scope": "/",
             "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "contentVersion": "1.0.0.0",
-                    "uri": "[variables('deploymentUris').managementGroups]"
-                },
-                "parameters": {
-                    "rootId": {
-                        "value": "[parameters('rootId')]"
-                    },
-                    "topLevelManagementGroupPrefix": {
-                        "value": "[variables('topLevelManagementGroupPrefix')]"
-                    },
-                    "createNewRoot": {
-                        "value": "[parameters('createNewRoot')]"
-                    },
-                    "parentManagementGroupId": {
-                        "value": "[parameters('parentManagementGroupId')]"
+                "displayName": "[variables('mgmtGroupsLevel0')['eslzRoot']]",
+                "details": {
+                    "parent": {
+                        "id": "[tenantResourceId('Microsoft.Management/managementGroups/', parameters('parentManagementGroupId'))]"
+                    }
+                }
+            }
+        },
+        {
+            // Create level 1 management groups
+            "name": "[variables('mgmtGroupsLevel1')[copyIndex()]]",
+            "type": "Microsoft.Management/managementGroups",
+            "apiVersion": "2020-05-01",
+            "scope": "/",
+            "dependsOn": [
+                "[variables('mgmtGroupsLevel0')['eslzRoot']]"
+            ],
+            "copy": {
+                "name": "level1MgCopy",
+                "count": "[length(variables('mgmtGroupsLevel1'))]"
+            },
+            "properties": {
+                "displayName": "[variables('mgmtGroupsLevel1')[copyIndex()]]",
+                "details": {
+                    "parent": {
+                        "id": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroupsLevel0')['eslzRoot'])]"
+                    }
+                }
+            }
+        },
+        {
+            // Create child management groups for platform resources
+            "condition": "[empty(parameters('platformSubscriptionId'))]",
+            "name": "[variables('mgmtGroupsPlatform')[copyIndex()]]",
+            "type": "Microsoft.Management/managementGroups",
+            "apiVersion": "2020-05-01",
+            "scope": "/",
+            "dependsOn": [
+                "level1MgCopy"
+            ],
+            "copy": {
+                "name": "platformMgCopy",
+                "count": "[length(variables('mgmtGroupsPlatform'))]"
+            },
+            "properties": {
+                "displayName": "[variables('mgmtGroupsPlatform')[copyIndex()]]",
+                "details": {
+                    "parent": {
+                        "id": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroupsLevel1')['platform'])]"
+                    }
+                }
+            }
+        },
+        {
+            // Create child management groups for landing zones
+            "name": "[variables('mgmtGroupsPlatform')[copyIndex()]]",
+            "type": "Microsoft.Management/managementGroups",
+            "apiVersion": "2020-05-01",
+            "scope": "/",
+            "dependsOn": [
+                "platformMgCopy"
+            ],
+            "copy": {
+                "name": "landingZonesMgCopy",
+                "count": "[length(variables('mgmtGroupsPlatform'))]"
+            },
+            "properties": {
+                "displayName": "[variables('mgmtGroupsPlatform')[copyIndex()]]",
+                "details": {
+                    "parent": {
+                        "id": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroupsLevel1')['platform'])]"
                     }
                 }
             }
@@ -1029,14 +1098,14 @@
         */
         {
             // Deploying ESLZ custom policies. Note: all policies should eventually be moved to built-in policies and codebase will be reduced
+            "condition": "[not(parameters('preStageMgsOnly'))]",
             "name": "[variables('deploymentNames').policyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "scope": "[variables('scopes').eslzRootManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtGroupDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').mgmtGroupLiteDeploymentName)]"
+                "[variables('mgmtGroupsLevel0')['eslzRoot']]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -1053,6 +1122,7 @@
         },
         {
             // One of Azure's untold stories.....
+            "condition": "[not(parameters('preStageMgsOnly'))]",
             "name": "[concat('alz-preparingToLaunch', copyIndex())]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1083,7 +1153,7 @@
         */
         {
             // Placing management subscription into dedicated management group
-            "condition": "[not(empty(parameters('managementSubscriptionId')))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), not(empty(parameters('managementSubscriptionId'))))]",
             "name": "[variables('deploymentNames').mgmtSubscriptionPlacement]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1100,7 +1170,7 @@
                 },
                 "parameters": {
                     "targetManagementGroupId": {
-                        "value": "[variables('mgmtGroups').management]"
+                        "value": "[variables('mgmtGroups')['management']]"
                     },
                     "subscriptionId": {
                         "value": "[parameters('managementSubscriptionId')]"
@@ -1110,7 +1180,7 @@
         },
         {
             // Placing connectivity subscription into dedicated management group
-            "condition": "[not(empty(parameters('connectivitySubscriptionId')))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), not(empty(parameters('connectivitySubscriptionId'))))]",
             "name": "[variables('deploymentNames').connectivitySubscriptionPlacement]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1127,7 +1197,7 @@
                 },
                 "parameters": {
                     "targetManagementGroupId": {
-                        "value": "[variables('mgmtGroups').connectivity]"
+                        "value": "[variables('mgmtGroups')['connectivity']]"
                     },
                     "subscriptionId": {
                         "value": "[parameters('connectivitySubscriptionId')]"
@@ -1137,7 +1207,7 @@
         },
         {
             // Placing identity subscription into dedicated management group
-            "condition": "[not(empty(parameters('identitySubscriptionId')))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), not(empty(parameters('identitySubscriptionId'))))]",
             "name": "[variables('deploymentNames').identitySubscriptionPlacement]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1154,7 +1224,7 @@
                 },
                 "parameters": {
                     "targetManagementGroupId": {
-                        "value": "[variables('mgmtGroups').identity]"
+                        "value": "[variables('mgmtGroups')['identity']]"
                     },
                     "subscriptionId": {
                         "value": "[parameters('identitySubscriptionId')]"
@@ -1167,7 +1237,7 @@
         */
         {
             // Deploying Log Analytics workspace to management subscription if condition is true
-            "condition": "[and(equals(parameters('enableLogAnalytics'), 'Yes'), not(empty(parameters('managementSubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableLogAnalytics'), 'Yes'), not(empty(parameters('managementSubscriptionId'))))]",
             "name": "[variables('deploymentNames').monitoringDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1207,7 +1277,7 @@
         },
         {
             // Deploying Log Analytics solutions to Log Analytics workspace if condition is true
-            "condition": "[and(and(not(empty(parameters('managementSubscriptionId'))), equals(parameters('enableLogAnalytics'), 'Yes')),  equals(parameters('enableLogAnalytics'), 'Yes'), or(or(or(or(or(or(or(equals(parameters('enableSecuritySolution'), 'Yes'), equals(parameters('enableAgentHealth'), 'Yes')), equals(parameters('enableChangeTracking'), 'Yes')), equals(parameters('enableUpdateMgmt'), 'Yes'), equals(parameters('enableActivityLog'), 'Yes')), equals(parameters('enableVmInsights'), 'Yes')), equals(parameters('enableServiceMap'), 'Yes'), equals(parameters('enableSqlAssessment'), 'Yes')), equals(parameters('enableSqlAdvancedThreatProtection'), 'Yes')), equals(parameters('enableSqlVulnerabilityAssessment'), 'Yes')))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), and(not(empty(parameters('managementSubscriptionId'))), equals(parameters('enableLogAnalytics'), 'Yes')),  equals(parameters('enableLogAnalytics'), 'Yes'), or(or(or(or(or(or(or(equals(parameters('enableSecuritySolution'), 'Yes'), equals(parameters('enableAgentHealth'), 'Yes')), equals(parameters('enableChangeTracking'), 'Yes')), equals(parameters('enableUpdateMgmt'), 'Yes'), equals(parameters('enableActivityLog'), 'Yes')), equals(parameters('enableVmInsights'), 'Yes')), equals(parameters('enableServiceMap'), 'Yes'), equals(parameters('enableSqlAssessment'), 'Yes')), equals(parameters('enableSqlAdvancedThreatProtection'), 'Yes')), equals(parameters('enableSqlVulnerabilityAssessment'), 'Yes')))]",
             "name": "[variables('deploymentNames').monitoringSolutionsDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1268,7 +1338,7 @@
         },
         {
             // Assigning Log Analytics workspace policy to management management group if condition is true
-            "condition": "[and(equals(parameters('enableLogAnalytics'), 'Yes'), not(empty(parameters('managementSubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableLogAnalytics'), 'Yes'), not(empty(parameters('managementSubscriptionId'))))]",
             "name": "[variables('deploymentNames').logAnalyticsPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1311,7 +1381,7 @@
         },
         {
             // Assigning Azure Security Benchmark policy to intermediate root management group if condition is true
-            "condition": "[and(or(not(empty(parameters('platformSubscriptionId'))), not(empty(parameters('managementSubscriptionId')))), or(equals(parameters('enableLogAnalytics'), 'Yes'), equals(parameters('enableAsc'), 'Yes')))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(not(empty(parameters('platformSubscriptionId'))), not(empty(parameters('managementSubscriptionId')))), or(equals(parameters('enableLogAnalytics'), 'Yes'), equals(parameters('enableAsc'), 'Yes')))]",
             "name": "[variables('deploymentNames').asbPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1334,7 +1404,7 @@
         },
         {
             // Assigning Azure Monitor Resource Diagnostics policy to intermediate root management group if condition is true
-            "condition": "[and(or(not(empty(parameters('platformSubscriptionId'))), not(empty(parameters('managementSubscriptionId')))), equals(parameters('enableLogAnalytics'), 'Yes'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(not(empty(parameters('platformSubscriptionId'))), not(empty(parameters('managementSubscriptionId')))), equals(parameters('enableLogAnalytics'), 'Yes'))]",
             "name": "[variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1364,7 +1434,7 @@
         },
         {
             // Assigning Azure Activity Diagnostics Log policy to intermediate root management group if condition is true
-            "condition": "[and(or(not(empty(parameters('platformSubscriptionId'))), not(empty(parameters('managementSubscriptionId')))), equals(parameters('enableLogAnalytics'), 'Yes'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(not(empty(parameters('platformSubscriptionId'))), not(empty(parameters('managementSubscriptionId')))), equals(parameters('enableLogAnalytics'), 'Yes'))]",
             "name": "[variables('deploymentNames').activityDiagnosticsPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1392,7 +1462,7 @@
         },
         {
             // Assigning Azure Security Center configuration policy initiative to intermediate root management group if condition is true
-            "condition": "[and(or(not(empty(parameters('managementSubscriptionId'))), not(empty(parameters('platformSubscriptionId')))), equals(parameters('enableAsc'), 'Yes'), equals(environment().resourceManager, 'https://management.azure.com/'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(not(empty(parameters('managementSubscriptionId'))), not(empty(parameters('platformSubscriptionId')))), equals(parameters('enableAsc'), 'Yes'), equals(environment().resourceManager, 'https://management.azure.com/'))]",
             "name": "[variables('deploymentNames').ascPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1456,7 +1526,7 @@
         },
         {
             // Az Gov Only - Assigning Azure Security Center configuration policy initiative to intermediate root management group if condition is true
-            "condition": "[and(or(not(empty(parameters('managementSubscriptionId'))), not(empty(parameters('platformSubscriptionId')))), equals(parameters('enableAsc'), 'Yes'), equals(environment().name, 'AzureUSGovernment'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(not(empty(parameters('managementSubscriptionId'))), not(empty(parameters('platformSubscriptionId')))), equals(parameters('enableAsc'), 'Yes'), equals(environment().name, 'AzureUSGovernment'))]",
             "name": "[variables('deploymentNames').ascGovPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1508,7 +1578,7 @@
         },
         {
             // China Only - Assigning Azure Security Center configuration policy initiative to intermediate root management group if condition is true
-            "condition": "[and(or(not(empty(parameters('managementSubscriptionId'))), not(empty(parameters('platformSubscriptionId')))), equals(parameters('enableAsc'), 'Yes'), equals(environment().name, 'AzureChinaCloud'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(not(empty(parameters('managementSubscriptionId'))), not(empty(parameters('platformSubscriptionId')))), equals(parameters('enableAsc'), 'Yes'), equals(environment().name, 'AzureChinaCloud'))]",
             "name": "[variables('deploymentNames').ascChinaPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1563,7 +1633,7 @@
         */
         {
             // Creating resource group for DDoS Standard Protection
-            "condition": "[and(equals(parameters('enableDdoS'), 'Yes'), not(empty(parameters('connectivitySubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableDdoS'), 'Yes'), not(empty(parameters('connectivitySubscriptionId'))))]",
             "name": "[variables('deploymentNames').ddosRgDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1596,7 +1666,7 @@
         },
         {
             // Creating DDoS protection plan into the connectivity subscription
-            "condition": "[and(equals(parameters('enableDdoS'), 'Yes'), not(empty(parameters('connectivitySubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableDdoS'), 'Yes'), not(empty(parameters('connectivitySubscriptionId'))))]",
             "name": "[variables('deploymentNames').ddosDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1625,7 +1695,7 @@
         },
         {
             // Assigning DDoS Policy to enforce DDoS on virtual networks if condition evaluates to true
-            "condition": "[and(or(equals(parameters('enableDdoS'), 'Yes'), equals(parameters('enableDdoS'), 'Audit')), not(empty(parameters('connectivitySubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(equals(parameters('enableDdoS'), 'Yes'), equals(parameters('enableDdoS'), 'Audit')), not(empty(parameters('connectivitySubscriptionId'))))]",
             "name": "[variables('deploymentNames').ddosHubPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1655,7 +1725,7 @@
         },
         {
             // Creating the virtual network hub (hub and spoke)
-            "condition": "[and(not(empty(parameters('connectivitySubscriptionId'))),equals(parameters('enableHub'), 'vhub'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), not(empty(parameters('connectivitySubscriptionId'))),equals(parameters('enableHub'), 'vhub'))]",
             "name": "[variables('deploymentNames').vnetConnectivityHubDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1746,7 +1816,7 @@
         },
         {
             // Creating the virtual network hub (with NVA)
-            "condition": "[and(not(empty(parameters('connectivitySubscriptionId'))),equals(parameters('enableHub'), 'nva'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), not(empty(parameters('connectivitySubscriptionId'))),equals(parameters('enableHub'), 'nva'))]",
             "name": "[variables('deploymentNames').nvaConnectivityHubDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1822,7 +1892,7 @@
         },
         {
             // Creating the VWAN network hub (Microsoft managed)
-            "condition": "[and(not(empty(parameters('connectivitySubscriptionId'))),equals(parameters('enableHub'), 'vwan'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), not(empty(parameters('connectivitySubscriptionId'))),equals(parameters('enableHub'), 'vwan'))]",
             "name": "[variables('deploymentNames').vwanConnectivityHubDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1889,7 +1959,7 @@
         },
         {
             // Creating resource group for Private DNS Zones
-            "condition": "[and(equals(parameters('enablePrivateDnsZones'), 'Yes'), not(empty(parameters('connectivitySubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enablePrivateDnsZones'), 'Yes'), not(empty(parameters('connectivitySubscriptionId'))))]",
             "name": "[variables('deploymentNames').privateDnsZoneRgDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1925,7 +1995,7 @@
         },
         {
             // Creating Private DNS Zones into the connectivity subscription
-            "condition": "[and(equals(parameters('enablePrivateDnsZones'), 'Yes'), not(empty(parameters('connectivitySubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enablePrivateDnsZones'), 'Yes'), not(empty(parameters('connectivitySubscriptionId'))))]",
             "name": "[concat(variables('deploymentNames').privateDnsZonesDeploymentName, copyIndex())]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1964,7 +2034,7 @@
         */
         {
             // Creating roleAssignment for the dedicated Service Principal for AzOps
-            "condition": "[and(equals(parameters('enableAzOps'), 'Yes'), not(empty(parameters('principalSecret'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableAzOps'), 'Yes'), not(empty(parameters('principalSecret'))))]",
             "name": "[variables('deploymentNames').azOpsRbacDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -1992,7 +2062,7 @@
         },
         {
             // Creating resource group for AzOps
-            "condition": "[and(equals(parameters('enableAzOps'), 'Yes'), not(empty(parameters('principalSecret'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableAzOps'), 'Yes'), not(empty(parameters('principalSecret'))))]",
             "name": "[variables('deploymentNames').azOpsRgDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2021,7 +2091,7 @@
         },
         {
             // Creating GitHub repository and bootstraps the CICD pipeline
-            "condition": "[and(equals(parameters('enableAzOps'), 'Yes'), not(empty(parameters('principalSecret'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableAzOps'), 'Yes'), not(empty(parameters('principalSecret'))))]",
             "name": "[variables('deploymentNames').azOpsSetupDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2080,15 +2150,14 @@
         */
         {
             // Deploying Private DNS Zones policy assignment for PaaS services using built-in policies
-            "condition": "[or(equals(parameters('enablePrivateDnsZonesForLzs'), 'Yes'), equals(parameters('enablePrivateDnsZonesForLzs'), 'Audit'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(equals(parameters('enablePrivateDnsZonesForLzs'), 'Yes'), equals(parameters('enablePrivateDnsZonesForLzs'), 'Audit')))]",
             "name": "[variables('deploymentNames').privateDnsPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "scope": "[variables('scopes').corpManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtGroupDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').mgmtGroupLiteDeploymentName)]",
+                "[variables('mgmtGroupsLevel0')['eslzRoot']]",
                 "dnsZones",
                 "dnsZonesLite",
                 "policyCompletion"
@@ -2118,7 +2187,7 @@
         },
         {
             // Assigning RBAC for Private DNS Zone Policy assignment to the connectivity hub
-            "condition": "[equals(parameters('enablePrivateDnsZonesForLzs'), 'Yes')]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enablePrivateDnsZonesForLzs'), 'Yes'))]",
             "name": "[variables('deploymentNames').dnsZoneRoleAssignmentDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2148,7 +2217,7 @@
         },
         {
             // Assigning Azure Monitor for VMs policy initiative to intermediate root management group if condition is true
-            "condition": "[and(or(not(empty(parameters('managementSubscriptionId'))), not(empty(parameters('platformSubscriptionId')))), equals(parameters('enableLogAnalytics'), 'Yes'), or(equals(parameters('enableVmMonitoring'), 'Yes'), equals(parameters('enableVmMonitoring'), 'Audit')))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(not(empty(parameters('managementSubscriptionId'))), not(empty(parameters('platformSubscriptionId')))), equals(parameters('enableLogAnalytics'), 'Yes'), or(equals(parameters('enableVmMonitoring'), 'Yes'), equals(parameters('enableVmMonitoring'), 'Audit')))]",
             "name": "[variables('deploymentNames').azVmMonitorPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2178,7 +2247,7 @@
         },
         {
             // Assigning Azure Monitor for VMSS policy initiative to intermediate root management group if condition is true
-            "condition": "[and(or(not(empty(parameters('managementSubscriptionId'))), not(empty(parameters('platformSubscriptionId')))), equals(parameters('enableLogAnalytics'), 'Yes'), or(equals(parameters('enableVmssMonitoring'), 'Yes'), equals(parameters('enableVmMonitoring'), 'Audit')))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(not(empty(parameters('managementSubscriptionId'))), not(empty(parameters('platformSubscriptionId')))), equals(parameters('enableLogAnalytics'), 'Yes'), or(equals(parameters('enableVmssMonitoring'), 'Yes'), equals(parameters('enableVmMonitoring'), 'Audit')))]",
             "name": "[variables('deploymentNames').azVmssMonitorPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2208,11 +2277,11 @@
         },
         {
             // Assigning Azure Backup policy to landing zones management group if condition is true
-            "condition": "[or(equals(parameters('enableVmBackup'), 'Yes'), equals(parameters('enableVmBackup'), 'Audit'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(equals(parameters('enableVmBackup'), 'Yes'), equals(parameters('enableVmBackup'), 'Audit')))]",
             "name": "[variables('deploymentNames').azBackupLzPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "scope": "[variables('scopes').lzsManagementGroup]",
+            "scope": "[variables('scopes').landingZonesManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
                 "policyCompletion"
@@ -2235,11 +2304,11 @@
         },
         {
             // Assigning DDoS Policy to enforce DDoS on virtual networks in landing zones management group if condition evaluates to true
-            "condition": "[and(or(equals(parameters('enableLzDdoS'), 'Yes'), equals(parameters('enableLzDdoS'), 'Audit')), not(empty(parameters('connectivitySubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(equals(parameters('enableLzDdoS'), 'Yes'), equals(parameters('enableLzDdoS'), 'Audit')), not(empty(parameters('connectivitySubscriptionId'))))]",
             "name": "[variables('deploymentNames').ddosLzPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "scope": "[variables('scopes').lzsManagementGroup]",
+            "scope": "[variables('scopes').landingZonesManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ddosDeploymentName)]"
@@ -2265,7 +2334,7 @@
         },
         {
             // Assigning Azure Policy to prevent Databricks using public IP
-            "condition": "[or(equals(parameters('denyDatabricksPip'), 'Yes'), equals(parameters('denyDatabricksPip'), 'Audit'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(equals(parameters('denyDatabricksPip'), 'Yes'), equals(parameters('denyDatabricksPip'), 'Audit')))]",
             "name": "[variables('deploymentNames').databricksPipDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2292,7 +2361,7 @@
         },
         {
             // Assigning Azure Policy to prevent Databricks sku
-            "condition": "[or(equals(parameters('denyDatabricksSku'), 'Yes'), equals(parameters('denyDatabricksSku'), 'Audit'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(equals(parameters('denyDatabricksSku'), 'Yes'), equals(parameters('denyDatabricksSku'), 'Audit')))]",
             "name": "[variables('deploymentNames').databricksSkuDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2319,7 +2388,7 @@
         },
         {
             // Assigning Azure Policy to prevent Databricks sku
-            "condition": "[or(equals(parameters('denyDatabricksVnet'), 'Yes'), equals(parameters('denyDatabricksVnet'), 'Audit'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(equals(parameters('denyDatabricksVnet'), 'Yes'), equals(parameters('denyDatabricksVnet'), 'Audit')))]",
             "name": "[variables('deploymentNames').databricksVnetDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2346,11 +2415,11 @@
         },
         {
             // Assigning Azure Policy enablement policy for AKS to landing zones management group if condition is true
-            "condition": "[or(equals(parameters('enableAksPolicy'), 'Yes'), equals(parameters('enableAksPolicy'), 'Audit'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(equals(parameters('enableAksPolicy'), 'Yes'), equals(parameters('enableAksPolicy'), 'Audit')))]",
             "name": "[variables('deploymentNames').azPolicyForAksPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "scope": "[variables('scopes').lzsManagementGroup]",
+            "scope": "[variables('scopes').landingZonesManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
                 "policyCompletion"
@@ -2373,11 +2442,11 @@
         },
         {
             // Assigning Aks Priv Escalation policy to landing zones management group if condition is true
-            "condition": "[or(equals(parameters('denyAksPrivilegedEscalation'), 'Yes'), equals(parameters('denyAksPrivilegedEscalation'), 'Audit'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(equals(parameters('denyAksPrivilegedEscalation'), 'Yes'), equals(parameters('denyAksPrivilegedEscalation'), 'Audit')))]",
             "name": "[variables('deploymentNames').aksPrivEscalationPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "scope": "[variables('scopes').lzsManagementGroup]",
+            "scope": "[variables('scopes').landingZonesManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
                 "policyCompletion"
@@ -2397,11 +2466,11 @@
         },
         {
             // Assigning Aks Priviliged policy to landing zones management group if condition is true
-            "condition": "[or(equals(parameters('denyAksPrivileged'), 'Yes'), equals(parameters('denyAksPrivileged'), 'Audit'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(equals(parameters('denyAksPrivileged'), 'Yes'), equals(parameters('denyAksPrivileged'), 'Audit')))]",
             "name": "[variables('deploymentNames').aksPrivilegedPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "scope": "[variables('scopes').lzsManagementGroup]",
+            "scope": "[variables('scopes').landingZonesManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
                 "policyCompletion"
@@ -2421,11 +2490,11 @@
         },
         {
             // Assigning Https enforcement for AKS policy to landing zones management group if condition is true
-            "condition": "[or(equals(parameters('denyHttpIngressForAks'), 'Yes'), equals(parameters('denyHttpIngressForAks'), 'Audit'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(equals(parameters('denyHttpIngressForAks'), 'Yes'), equals(parameters('denyHttpIngressForAks'), 'Audit')))]",
             "name": "[variables('deploymentNames').aksHttpsPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "scope": "[variables('scopes').lzsManagementGroup]",
+            "scope": "[variables('scopes').landingZonesManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
                 "policyCompletion"
@@ -2445,11 +2514,11 @@
         },
         {
             // Assigning TLS-SSL policy initiative to landing zones management group if condition is true
-            "condition": "[or(equals(parameters('enableEncryptionInTransit'), 'Yes'), equals(parameters('enableEncryptionInTransit'), 'Audit'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(equals(parameters('enableEncryptionInTransit'), 'Yes'), equals(parameters('enableEncryptionInTransit'), 'Audit')))]",
             "name": "[variables('deploymentNames').tlsSslPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "scope": "[variables('scopes').lzsManagementGroup]",
+            "scope": "[variables('scopes').landingZonesManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
                 "policyCompletion"
@@ -2472,11 +2541,11 @@
         },
         {
             // Assigning IP Fwd policy to landing zones management group if condition is true
-            "condition": "[equals(parameters('denyIpForwarding'), 'Yes')]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('denyIpForwarding'), 'Yes'))]",
             "name": "[variables('deploymentNames').ipFwPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "scope": "[variables('scopes').lzsManagementGroup]",
+            "scope": "[variables('scopes').landingZonesManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
                 "policyCompletion"
@@ -2496,7 +2565,7 @@
         },
         {
             // Assigning deny public endpoint initiative to corp connected landing zones management group if condition is true
-            "condition": "[equals(parameters('denyPublicEndpoints'), 'Yes')]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('denyPublicEndpoints'), 'Yes'))]",
             "name": "[variables('deploymentNames').publicEndpointPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2523,11 +2592,11 @@
         },
         {
             // Assigning deny rpd from internet policy landing zones management group if condition is true
-            "condition": "[equals(parameters('denyRdp'), 'Yes')]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('denyRdp'), 'Yes'))]",
             "name": "[variables('deploymentNames').rdpFromInternetPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "scope": "[variables('scopes').lzsManagementGroup]",
+            "scope": "[variables('scopes').landingZonesManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
                 "policyCompletion"
@@ -2550,11 +2619,11 @@
         },
         {
             // Assigning deny storage without https policy to landing zones management group if condition is true
-            "condition": "[equals(parameters('enableStorageHttps'), 'Yes')]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableStorageHttps'), 'Yes'))]",
             "name": "[variables('deploymentNames').storageHttpsPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "scope": "[variables('scopes').lzsManagementGroup]",
+            "scope": "[variables('scopes').landingZonesManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
                 "policyCompletion"
@@ -2574,11 +2643,11 @@
         },
         {
             // Assigning deny subnet without nsg policy to landing zones management group if condition is true
-            "condition": "[equals(parameters('denySubnetWithoutNsg'), 'Yes')]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('denySubnetWithoutNsg'), 'Yes'))]",
             "name": "[variables('deploymentNames').subnetNsgPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "scope": "[variables('scopes').lzsManagementGroup]",
+            "scope": "[variables('scopes').landingZonesManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
                 "policyCompletion"
@@ -2601,11 +2670,11 @@
         },
         {
             // Assigning sql audit policy to landing zones management group if condition is true
-            "condition": "[equals(parameters('enableSqlAudit'), 'Yes')]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableSqlAudit'), 'Yes'))]",
             "name": "[variables('deploymentNames').sqlAuditPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "scope": "[variables('scopes').lzsManagementGroup]",
+            "scope": "[variables('scopes').landingZonesManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
                 "policyCompletion"
@@ -2628,11 +2697,11 @@
         },
         {
             // Assigning sql encryption policy to landing zones management group if condition is true
-            "condition": "[equals(parameters('enableSqlEncryption'), 'Yes')]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableSqlEncryption'), 'Yes'))]",
             "name": "[variables('deploymentNames').sqlEncryptionPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "scope": "[variables('scopes').lzsManagementGroup]",
+            "scope": "[variables('scopes').landingZonesManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
                 "policyCompletion"
@@ -2658,7 +2727,7 @@
         */
         {
             // Assigning Azure Backup policy to identity management group if condition is true
-            "condition": "[and(equals(parameters('enableVmBackupForIdentity'), 'Yes'), not(empty(parameters('identitySubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableVmBackupForIdentity'), 'Yes'), not(empty(parameters('identitySubscriptionId'))))]",
             "name": "[variables('deploymentNames').azBackupIdentityPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2685,7 +2754,7 @@
         },
         {
             // Assigning deny Public Ip policy to identity management group if condition is true
-            "condition": "[and(equals(parameters('denyPipForIdentity'), 'Yes'), not(empty(parameters('identitySubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('denyPipForIdentity'), 'Yes'), not(empty(parameters('identitySubscriptionId'))))]",
             "name": "[variables('deploymentNames').pipPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2713,7 +2782,7 @@
         },
         {
             // Assigning deny subnet without nsg policy to identity management group if condition is true
-            "condition": "[and(equals(parameters('denySubnetWithoutNsgForIdentity'), 'Yes'), not(empty(parameters('identitySubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('denySubnetWithoutNsgForIdentity'), 'Yes'), not(empty(parameters('identitySubscriptionId'))))]",
             "name": "[variables('deploymentNames').subnetNsgIdentityPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2741,7 +2810,7 @@
         },
         {
             // Assigning deny rpd from internet on identity management group if condition is true
-            "condition": "[and(equals(parameters('denyRdpForIdentity'), 'Yes'), not(empty(parameters('identitySubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('denyRdpForIdentity'), 'Yes'), not(empty(parameters('identitySubscriptionId'))))]",
             "name": "[variables('deploymentNames').rdpFromInternetIdentityPolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2769,7 +2838,7 @@
         },
         {
             // Peer vnet in identity subscription to connectivity hub if vhub or nva contidion is true
-            "condition": "[and(or(equals(parameters('enableHub'), 'nva'), equals(parameters('enableHub'), 'vhub')), not(empty(parameters('identityAddressPrefix'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(equals(parameters('enableHub'), 'nva'), equals(parameters('enableHub'), 'vhub')), not(empty(parameters('identityAddressPrefix'))))]",
             "name": "[variables('deploymentNames').identityPeeringDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2817,7 +2886,7 @@
         },
         {
             // Peer vnet in identity subscription to connectivity hub if vwan contidion is true
-            "condition": "[and(equals(parameters('enableHub'), 'vwan'), not(empty(parameters('identityAddressPrefix'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableHub'), 'vwan'), not(empty(parameters('identityAddressPrefix'))))]",
             "name": "[variables('deploymentNames').identityVwanPeeringDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2868,7 +2937,7 @@
         */
         {
             // Placing subscription(s) into online landing zone management group
-            "condition": "[not(empty(parameters('onlineLzSubscriptionId')))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), not(empty(parameters('onlineLzSubscriptionId'))))]",
             "name": "[concat(variables('deploymentNames').onlineLzSubs, copyIndex())]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2894,7 +2963,7 @@
                 },
                 "parameters": {
                     "targetManagementGroupId": {
-                        "value": "[variables('mgmtGroups').online]"
+                        "value": "[variables('mgmtGroups')['online']]"
                     },
                     "subscriptionId": {
                         "value": "[concat(parameters('onlineLzSubscriptionId')[copyIndex()])]"
@@ -2904,7 +2973,7 @@
         },
         {
             // Placing subscriptions into corp landing zone management group
-            "condition": "[not(empty(parameters('corpLzSubscriptionId')))]",
+            "condition": "[not(parameters('preStageMgsOnly')), (not(empty(parameters('corpLzSubscriptionId'))))]",
             "name": "[concat(variables('deploymentNames').corpLzSubs, copyIndex())]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2930,7 +2999,7 @@
                 },
                 "parameters": {
                     "targetManagementGroupId": {
-                        "value": "[variables('mgmtGroups').corp]"
+                        "value": "[variables('mgmtGroups')['corp']]"
                     },
                     "subscriptionId": {
                         "value": "[concat(parameters('corpLzSubscriptionId')[copyIndex()])]"
@@ -2940,7 +3009,7 @@
         },
         {
             // Placing subscriptions into corp landing zone management group (and do subsequent peering)
-            "condition": "[not(empty(parameters('corpConnectedLzSubscriptionId')))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), not(empty(parameters('corpConnectedLzSubscriptionId'))))]",
             "name": "[concat(variables('deploymentNames').corpConnectedMoveLzSubs, copyIndex())]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -2966,7 +3035,7 @@
                 },
                 "parameters": {
                     "targetManagementGroupId": {
-                        "value": "[variables('mgmtGroups').corp]"
+                        "value": "[variables('mgmtGroups')['corp']]"
                     },
                     "subscriptionId": {
                         "value": "[parameters('corpConnectedLzSubscriptionId')[copyIndex()].subs]"
@@ -2976,7 +3045,7 @@
         },
         {
             // Peering corp connected lz vnet to connectivity sub (when nva or vhub is selected)
-            "condition": "[and(or(equals(parameters('enableHub'), 'nva'), equals(parameters('enableHub'), 'vhub')), not(empty(parameters('corpConnectedLzSubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), or(equals(parameters('enableHub'), 'nva'), equals(parameters('enableHub'), 'vhub')), not(empty(parameters('corpConnectedLzSubscriptionId'))))]",
             "name": "[concat(variables('deploymentNames').corpPeeringDeploymentName, copyIndex())]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3032,7 +3101,7 @@
         },
         /*{
             // Peering corp connected lz vnet to connectivity sub (when vwan is selected)
-            "condition": "[and(equals(parameters('enableHub'), 'vwan'), not(empty(parameters('corpConnectedLzSubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableHub'), 'vwan'), not(empty(parameters('corpConnectedLzSubscriptionId'))))]",
             "name": "[concat(variables('deploymentNames').corpConnectedLzVwanSubs, copyIndex())]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3093,54 +3162,21 @@
             The following section represent optional deployments in case the user select to use a single dedicated subscription for platform resources.
             This is not recommmended for production deployment, only for small enterprises, demo, POC, etc.
 
-            The following deployment will create the management group structure for ESLZ Lite
+            Creating the ESLZ Lite management group structure has been consolidated with the regular deployment
         */
-        {
-            // Creating the ESLZ Lite management group structure
-            "condition": "[not(empty(parameters('platformSubscriptionId')))]",
-            "name": "[variables('esLiteDeploymentNames').mgmtGroupLiteDeploymentName]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
-            "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[deployment().location]",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "contentVersion": "1.0.0.0",
-                    "uri": "[variables('deploymentUris').managementGroups]"
-                },
-                "parameters": {
-                    "rootId": {
-                        "value": "[parameters('rootId')]"
-                    },
-                    "topLevelManagementGroupPrefix": {
-                        "value": "[variables('topLevelManagementGroupPrefix')]"
-                    },
-                    "createNewRoot": {
-                        "value": "[parameters('createNewRoot')]"
-                    },
-                    "parentManagementGroupId": {
-                        "value": "[parameters('parentManagementGroupId')]"
-                    },
-                    "platformMgs": {
-                        "value": []
-                    }
-                }
-            }
-        },
         /*
             Note: ES Lite only: the following deployments will organize the dedicated platform subscription into the dedicated management groups
         */
         {
             // Placing Platform subscription into dedicated management group
-            "condition": "[not(empty(parameters('platformSubscriptionId')))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), not(empty(parameters('platformSubscriptionId'))))]",
             "name": "[variables('esLiteDeploymentNames').platformLiteSubscriptionPlacement]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "scope": "[variables('scopes').platformManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').mgmtGroupLiteDeploymentName)]"
+                "level1MgCopy"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -3150,7 +3186,7 @@
                 },
                 "parameters": {
                     "targetManagementGroupId": {
-                        "value": "[variables('mgmtGroups').platform]"
+                        "value": "[variables('mgmtGroups')['platform']]"
                     },
                     "subscriptionId": {
                         "value": "[parameters('platformSubscriptionId')]"
@@ -3163,7 +3199,7 @@
         */
         {
             // Deploying Log Analytics workspace to platform subscription if condition is true
-            "condition": "[and(equals(parameters('enableLogAnalytics'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableLogAnalytics'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
             "name": "[variables('esLiteDeploymentNames').monitoringLiteDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3206,7 +3242,7 @@
         */
         {
             // Deploying Log Analytics solutions to Log Analytics workspace if condition is true
-            "condition": "[and(and(not(empty(parameters('platformSubscriptionId'))), equals(parameters('enableLogAnalytics'), 'Yes')),  equals(parameters('enableLogAnalytics'), 'Yes'), or(or(or(or(or(or(or(equals(parameters('enableSecuritySolution'), 'Yes'), equals(parameters('enableAgentHealth'), 'Yes')), equals(parameters('enableChangeTracking'), 'Yes')), equals(parameters('enableUpdateMgmt'), 'Yes'), equals(parameters('enableActivityLog'), 'Yes')), equals(parameters('enableVmInsights'), 'Yes')), equals(parameters('enableServiceMap'), 'Yes'), equals(parameters('enableSqlAssessment'), 'Yes')), equals(parameters('enableSqlAdvancedThreatProtection'), 'Yes')), equals(parameters('enableSqlVulnerabilityAssessment'), 'Yes')))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), and(not(empty(parameters('platformSubscriptionId'))), equals(parameters('enableLogAnalytics'), 'Yes')),  equals(parameters('enableLogAnalytics'), 'Yes'), or(or(or(or(or(or(or(equals(parameters('enableSecuritySolution'), 'Yes'), equals(parameters('enableAgentHealth'), 'Yes')), equals(parameters('enableChangeTracking'), 'Yes')), equals(parameters('enableUpdateMgmt'), 'Yes'), equals(parameters('enableActivityLog'), 'Yes')), equals(parameters('enableVmInsights'), 'Yes')), equals(parameters('enableServiceMap'), 'Yes'), equals(parameters('enableSqlAssessment'), 'Yes')), equals(parameters('enableSqlAdvancedThreatProtection'), 'Yes')), equals(parameters('enableSqlVulnerabilityAssessment'), 'Yes')))]",
             "name": "[variables('esLiteDeploymentNames').monitoringSolutionsLiteDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3270,7 +3306,7 @@
         */
         {
             // Assigning Log Analytics workspace policy to platform management group if condition is true
-            "condition": "[and(equals(parameters('enableLogAnalytics'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableLogAnalytics'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
             "name": "[variables('esLiteDeploymentNames').logAnalyticsLitePolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3316,7 +3352,7 @@
         */
         {
             // Creating resource group for DDoS Standard Protection
-            "condition": "[and(equals(parameters('enableDdoS'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableDdoS'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
             "name": "[variables('esLiteDeploymentNames').ddosRgLiteDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3349,7 +3385,7 @@
         */
         {
             // Creating DDoS protection plan into the connectivity subscription
-            "condition": "[and(equals(parameters('enableDdoS'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableDdoS'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
             "name": "[variables('esLiteDeploymentNames').ddosLiteDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3379,7 +3415,7 @@
         */
         {
             // Creating resource group for Private DNS Zones
-            "condition": "[and(equals(parameters('enablePrivateDnsZones'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enablePrivateDnsZones'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
             "name": "[variables('esLitedeploymentNames').privateDnsZoneRgLiteDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3418,7 +3454,7 @@
         */
         {
             // Creating Private DNS Zones into the connectivity subscription
-            "condition": "[and(equals(parameters('enablePrivateDnsZones'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enablePrivateDnsZones'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
             "name": "[concat(variables('esLitedeploymentNames').privateDnsZonesLiteDeploymentName, copyIndex())]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3457,7 +3493,7 @@
         */
         {
             // Assigning DDoS Policy to enforce DDoS on virtual networks if condition evaluates to true
-            "condition": "[and(and(equals(parameters('enableDdoS'), 'Yes'), equals(parameters('enableHub'), 'vhub')), not(empty(parameters('platformSubscriptionId'))), equals(parameters('enableHub'), 'Yes'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), and(equals(parameters('enableDdoS'), 'Yes'), equals(parameters('enableHub'), 'vhub')), not(empty(parameters('platformSubscriptionId'))), equals(parameters('enableHub'), 'Yes'))]",
             "name": "[variables('esLiteDeploymentNames').ddosHubLitePolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3490,7 +3526,7 @@
         */
         {
             // Configuring and deploying the connectivity hub (hub and spoke)
-            "condition": "[and(not(empty(parameters('platformSubscriptionId'))),equals(parameters('enableHub'), 'vhub'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), not(empty(parameters('platformSubscriptionId'))),equals(parameters('enableHub'), 'vhub'))]",
             "name": "[variables('esLitedeploymentNames').vnetConnectivityHubLiteDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3582,7 +3618,7 @@
         */
         {
             // Configuring and deploying the connectivity hub (NVA)
-            "condition": "[and(not(empty(parameters('platformSubscriptionId'))),equals(parameters('enableHub'), 'nva'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), not(empty(parameters('platformSubscriptionId'))),equals(parameters('enableHub'), 'nva'))]",
             "name": "[variables('esLitedeploymentNames').nvaConnectivityHubLiteDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3659,7 +3695,7 @@
         */
         {
             // Creating the VWAN network hub (Microsoft managed)
-            "condition": "[and(not(empty(parameters('platformSubscriptionId'))),equals(parameters('enableHub'), 'vwan'))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), not(empty(parameters('platformSubscriptionId'))),equals(parameters('enableHub'), 'vwan'))]",
             "name": "[variables('esLitedeploymentNames').vwanConnectivityHubLiteDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3726,7 +3762,7 @@
         */
         {
             // Assigning Azure Backup policy to platform management group if condition is true
-            "condition": "[and(equals(parameters('enableVmBackupForIdentity'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('enableVmBackupForIdentity'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
             "name": "[variables('esLitedeploymentNames').azBackupIdentityLitePolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3756,7 +3792,7 @@
         */
         {
             // Assigning deny subnet without nsg policy to identity management group if condition is true
-            "condition": "[and(equals(parameters('denySubnetWithoutNsgForIdentity'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('denySubnetWithoutNsgForIdentity'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
             "name": "[variables('esLitedeploymentNames').subnetNsgIdentityLitePolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3787,7 +3823,7 @@
         */
         {
             // Assigning deny rpd from internet policy landing zones management group if condition is true
-            "condition": "[and(equals(parameters('denyRdpForIdentity'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('denyRdpForIdentity'), 'Yes'), not(empty(parameters('platformSubscriptionId'))))]",
             "name": "[variables('esLitedeploymentNames').rdpFromInternetIdentityLitePolicyDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -3814,7 +3850,7 @@
             }
         },
         {
-            "condition": "[equals(parameters('telemetryOptOut'), 'No')]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), equals(parameters('telemetryOptOut'), 'No'))]",
             "name": "[variables('deploymentNames').pidCuaDeploymentName]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",

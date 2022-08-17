@@ -175,6 +175,27 @@
                                     "constraints": {
                                         "allowedValues": "[map(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.properties.displayName, '\",\"description\":\"', mgs.name, '\",\"value\":\"', mgs.name, '\"}')))]"
                                     }
+                                },
+                                {
+                                    "name": "preStageMgsOnly",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Pre-stage management groups only",
+                                    "defaultValue": "No",
+                                    "toolTip": "Select \"Yes\" to only create the management group hierarchy. Useful when user permissions are limited.",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "No (default)",
+                                                "value": false
+                                            },
+                                            {
+                                                "label": "Yes",
+                                                "value": true
+                                            }
+                                        ],
+                                        "required": true
+                                    },
+                                    "visible": true
                                 }
                             ],
                             "visible": true
@@ -205,7 +226,7 @@
                                     "visible": true
                                 }
                             ],
-                            "visible": true
+                            "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]"
                         },
                         {
                             "name": "singleSubscription",
@@ -236,7 +257,7 @@
                                     "label": "Single platform subscription"
                                 }
                             ],
-                            "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]"
+                            "visible": "[and(not(steps('core').rootManagementGroup.preStageMgsOnly), equals(steps('core').platform.subscriptionOption, 'Single'))]"
                         },
                         {
                             "name": "cuaSection",
@@ -274,7 +295,7 @@
                                     }
                                 }
                             ],
-                            "visible": "[equals(steps('basics').cloudEnvironment.selection, 'AzureCloud')]"
+                            "visible": "[and(not(steps('core').rootManagementGroup.preStageMgsOnly), equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'))]"
                         }
                     ]
                 },
@@ -286,6 +307,7 @@
                         "postValidation": ""
                     },
                     "bladeTitle": "ALZ - Management Settings",
+                    "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]",
                     "elements": [
                         {
                             "name": "multiPlatformMgmtSub",
@@ -828,6 +850,7 @@
                     "label": "Platform DevOps and automation",
                     "subLabel": {},
                     "bladeTitle": "ALZ - Automation Settings",
+                    "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]",
                     "elements": [
                         {
                             "name": "info",
@@ -987,6 +1010,7 @@
                         "postValidation": ""
                     },
                     "bladeTitle": "ALZ - Connectivity Settings",
+                    "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]",
                     "elements": [
                         {
                             "name": "multiPlatformConnectivitySub",
@@ -1777,6 +1801,7 @@
                         "postValidation": ""
                     },
                     "bladeTitle": "ALZ - Identity Settings",
+                    "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]",
                     "elements": [
                         {
                             "name": "multiPlatformIdentitySub",
@@ -1980,6 +2005,7 @@
                         "postValidation": ""
                     },
                     "bladeTitle": "ALZ - Landing Zones Settings",
+                    "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]",
                     "elements": [
                         {
                             "name": "infoBox1",
@@ -2625,8 +2651,9 @@
         "outputs": {
             "parameters": {
                 "rootId": "[steps('core').naming.rootId]",
-                "createNewRoot": "[coalesce(steps('core').rootManagementGroup.createNewRoot, false)]",
+                "createNewRoot": "[steps('core').rootManagementGroup.createNewRoot]",
                 "parentManagementGroupId": "[coalesce(steps('core').rootManagementGroup.parentManagementGroupId, steps('basics').resourceScope.managementGroup.name)]",
+                "preStageMgsOnly": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                 "platformSubscriptionId": "[steps('core').singleSubscription.selector.subscriptionId]",
                 "telemetryOptOut": "[steps('core').cuaSection.telemetryOptOut]",
                 "enableLogAnalytics": "[steps('management').enableLogAnalytics]",
