@@ -1073,7 +1073,7 @@
         },
         {
             // Create child management groups for landing zones
-            "name": "[variables('mgmtGroupsLandingZones')[copyIndex('landingZonesMgCopy')]]",
+            "name": "[items(variables('mgmtGroupsLandingZones'))[copyIndex('landingZonesMgCopy')].value]",
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
             "scope": "/",
@@ -1082,10 +1082,10 @@
             ],
             "copy": {
                 "name": "landingZonesMgCopy",
-                "count": "[length(variables('mgmtGroupsLandingZones'))]"
+                "count": "[length(items(variables('mgmtGroupsLandingZones')))]"
             },
             "properties": {
-                "displayName": "[variables('mgmtGroupsLandingZones')[copyIndex('landingZonesMgCopy')]]",
+                "displayName": "[items(variables('mgmtGroupsLandingZones'))[copyIndex('landingZonesMgCopy')].value]",
                 "details": {
                     "parent": {
                         "id": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroupsLevel1')['landingZones'])]"
