@@ -1028,7 +1028,7 @@
         },
         {
             // Create level 1 management groups
-            "name": "[variables('mgmtGroupsLevel1')[copyIndex()]]",
+            "name": "[items(variables('mgmtGroupsLevel1'))[copyIndex('level1MgCopy')].value]",
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
             "scope": "/",
@@ -1037,10 +1037,10 @@
             ],
             "copy": {
                 "name": "level1MgCopy",
-                "count": "[length(variables('mgmtGroupsLevel1'))]"
+                "count": "[length(items(variables('mgmtGroupsLevel1')))]"
             },
             "properties": {
-                "displayName": "[variables('mgmtGroupsLevel1')[copyIndex()]]",
+                "displayName": "[items(variables('mgmtGroupsLevel1'))[copyIndex('level1MgCopy')].value]",
                 "details": {
                     "parent": {
                         "id": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroupsLevel0')['eslzRoot'])]"
@@ -1051,7 +1051,7 @@
         {
             // Create child management groups for platform resources
             "condition": "[empty(parameters('platformSubscriptionId'))]",
-            "name": "[variables('mgmtGroupsPlatform')[copyIndex()]]",
+            "name": "[items(variables('mgmtGroupsPlatform'))[copyIndex('platformMgCopy')].value]",
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
             "scope": "/",
@@ -1060,10 +1060,10 @@
             ],
             "copy": {
                 "name": "platformMgCopy",
-                "count": "[length(variables('mgmtGroupsPlatform'))]"
+                "count": "[length(items(variables('mgmtGroupsPlatform')))]"
             },
             "properties": {
-                "displayName": "[variables('mgmtGroupsPlatform')[copyIndex()]]",
+                "displayName": "[items(variables('mgmtGroupsPlatform'))[copyIndex('platformMgCopy')].value]",
                 "details": {
                     "parent": {
                         "id": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroupsLevel1')['platform'])]"
@@ -1073,7 +1073,7 @@
         },
         {
             // Create child management groups for landing zones
-            "name": "[variables('mgmtGroupsPlatform')[copyIndex()]]",
+            "name": "[variables('mgmtGroupsLandingZones')[copyIndex('landingZonesMgCopy')]]",
             "type": "Microsoft.Management/managementGroups",
             "apiVersion": "2020-05-01",
             "scope": "/",
@@ -1082,13 +1082,13 @@
             ],
             "copy": {
                 "name": "landingZonesMgCopy",
-                "count": "[length(variables('mgmtGroupsPlatform'))]"
+                "count": "[length(variables('mgmtGroupsLandingZones'))]"
             },
             "properties": {
-                "displayName": "[variables('mgmtGroupsPlatform')[copyIndex()]]",
+                "displayName": "[variables('mgmtGroupsLandingZones')[copyIndex('landingZonesMgCopy')]]",
                 "details": {
                     "parent": {
-                        "id": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroupsLevel1')['platform'])]"
+                        "id": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroupsLevel1')['landingZones'])]"
                     }
                 }
             }
