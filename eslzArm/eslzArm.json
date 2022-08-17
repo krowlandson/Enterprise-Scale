@@ -1115,6 +1115,12 @@
                 "parameters": {
                     "topLevelManagementGroupPrefix": {
                         "value": "[variables('topLevelManagementGroupPrefix')]"
+                    },
+                    "location": {
+                        "value": "[deployment().location]"
+                    },
+                    "scope": {
+                        "value": "[variables('scopes').eslzRootManagementGroup]"
                     }
                 }
             }
