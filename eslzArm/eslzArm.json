@@ -766,7 +766,6 @@
         // Declaring deterministic deployment names
         "deploymentSuffix": "[concat('-', deployment().location, '-', guid(parameters('rootId')))]",
         "deploymentNames": {
-            "mgmtGroupDeploymentName": "[take(concat('alz-Mgs', variables('deploymentSuffix')), 64)]",
             "mgmtSubscriptionPlacement": "[take(concat('alz-MgmtSub', variables('deploymentSuffix')), 64)]",
             "databricksSkuDeploymentName": "[take(concat('alz-DBSku', variables('deploymentSuffix')), 64)]",
             "databricksPipDeploymentName": "[take(concat('alz-DBPip', variables('deploymentSuffix')), 64)]",
@@ -1160,7 +1159,7 @@
             "scope": "[variables('scopes').managementManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtGroupDeploymentName)]"
+                "platformMgCopy"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -1187,7 +1186,7 @@
             "scope": "[variables('scopes').connectivityManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtGroupDeploymentName)]"
+                "platformMgCopy"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -1214,7 +1213,7 @@
             "scope": "[variables('scopes').identityManagementGroup]",
             "location": "[deployment().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtGroupDeploymentName)]"
+                "platformMgCopy"
             ],
             "properties": {
                 "mode": "Incremental",
