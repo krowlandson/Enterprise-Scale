@@ -701,14 +701,14 @@
         "mgmtGroups": "[union(variables('mgmtGroupsLevel0'), variables('mgmtGroupsLevel1'), variables('mgmtGroupsPlatform'), variables('mgmtGroupsLandingZones'))]",
         // Declaring scopes that will be used for optional deployments, such as platform components (monitoring, networking, identity), policy assignments, subscription placement etc.
         "scopes": {
-            "eslzRootManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['eslzRoot'])]",
-            "platformManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['platform'])]",
-            "managementManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['management'])]",
-            "connectivityManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['connectivity'])]",
-            "identityManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['identity'])]",
-            "landingZonesManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['landingZones'])]",
-            "corpManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['corp'])]",
-            "onlineManagementGroup": "[tenantResourceId('Microsoft.Management/managementGroups/', variables('mgmtGroups')['online'])]"
+            "eslzRootManagementGroup": "[concat('/providers/Microsoft.Management/managementGroups/', variables('mgmtGroups')['eslzRoot'])]",
+            "platformManagementGroup": "[concat('/providers/Microsoft.Management/managementGroups/', variables('mgmtGroups')['platform'])]",
+            "managementManagementGroup": "[concat('/providers/Microsoft.Management/managementGroups/', variables('mgmtGroups')['management'])]",
+            "connectivityManagementGroup": "[concat('/providers/Microsoft.Management/managementGroups/', variables('mgmtGroups')['connectivity'])]",
+            "identityManagementGroup": "[concat('/providers/Microsoft.Management/managementGroups/', variables('mgmtGroups')['identity'])]",
+            "landingZonesManagementGroup": "[concat('/providers/Microsoft.Management/managementGroups/', variables('mgmtGroups')['landingZones'])]",
+            "corpManagementGroup": "[concat('/providers/Microsoft.Management/managementGroups/', variables('mgmtGroups')['corp'])]",
+            "onlineManagementGroup": "[concat('/providers/Microsoft.Management/managementGroups/', variables('mgmtGroups')['online'])]"
         },
         // Declaring all required deployment uri's used for deployments of composite ARM templates for ESLZ
         "azPrivateDnsPolicyAssignmentMapping": {
