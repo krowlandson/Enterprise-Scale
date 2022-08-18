@@ -2978,7 +2978,7 @@
         },
         {
             // Placing subscriptions into corp landing zone management group
-            "condition": "[not(parameters('preStageMgsOnly')), (not(empty(parameters('corpLzSubscriptionId'))))]",
+            "condition": "[and(not(parameters('preStageMgsOnly')), not(empty(parameters('corpLzSubscriptionId'))))]",
             "name": "[concat(variables('deploymentNames').corpLzSubs, copyIndex())]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
