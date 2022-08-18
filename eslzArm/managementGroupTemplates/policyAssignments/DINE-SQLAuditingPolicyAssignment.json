@@ -15,6 +15,13 @@
                 "DoNotEnforce"
             ],
             "defaultValue": "Default"
+        },
+        "scope": {
+            "type": "string",
+            "defaultValue": "[managementGroup().id]",
+            "metadata": {
+                "description": "Optionally set the scope for resources deployed by this template. Must be one of '/', '/subscriptions/id' or '/providers/Microsoft.Management/managementGroups/id'. DEFAULT VALUE = '[managementGroup().id]'"
+            }
         }
     },
     "variables": {
@@ -36,6 +43,7 @@
             "type": "Microsoft.Authorization/policyAssignments",
             "apiVersion": "2021-06-01",
             "name": "[variables('policyAssignmentNames').deploySqlAuditing]",
+            "scope": "[parameters('scope')]",
             "location": "[deployment().location]",
             "identity": {
                 "type": "SystemAssigned"
@@ -51,6 +59,7 @@
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-10-01-preview",
             "name": "[variables('roleAssignmentNames').deploySqlAuditing]",
+            "scope": "[parameters('scope')]",
             "dependsOn": [
                 "[variables('policyAssignmentNames').deploySqlAuditing]"
             ],

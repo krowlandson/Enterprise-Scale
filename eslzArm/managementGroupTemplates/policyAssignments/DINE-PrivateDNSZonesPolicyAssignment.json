@@ -27,6 +27,13 @@
             "metadata": {
                 "description": "Provide the location where the virtual network is created (hub)"
             }
+        },
+        "scope": {
+            "type": "string",
+            "defaultValue": "[managementGroup().id]",
+            "metadata": {
+                "description": "Optionally set the scope for resources deployed by this template. Must be one of '/', '/subscriptions/id' or '/providers/Microsoft.Management/managementGroups/id'. DEFAULT VALUE = '[managementGroup().id]'"
+            }
         }
     },
     "variables": {
@@ -71,6 +78,7 @@
             "type": "Microsoft.Authorization/policyAssignments",
             "apiVersion": "2021-06-01",
             "name": "[variables('policyAssignmentNames').deployPrivateDnsZones]",
+            "scope": "[parameters('scope')]",
             "location": "[deployment().location]",
             "identity": {
                 "type": "SystemAssigned"
@@ -148,6 +156,7 @@
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-10-01-preview",
             "name": "[variables('roleAssignmentNames').deployPrivateDnsZones]",
+            "scope": "[parameters('scope')]",
             "dependsOn": [
                 "[variables('policyAssignmentNames').deployPrivateDnsZones]"
             ],
