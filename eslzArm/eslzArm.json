@@ -2346,6 +2346,9 @@
                     },
                     "enforcementMode": {
                         "value": "[if(equals(parameters('enableVmBackup'), 'Yes'), 'Default', 'DoNotEnforce')]"
+                    },
+                    "scope": {
+                        "value": "[variables('scopes').landingZonesManagementGroup]"
                     }
                 }
             }
@@ -2376,6 +2379,9 @@
                     },
                     "enforcementMode": {
                         "value": "[if(equals(parameters('enableLzDdoS'), 'Yes'), 'Default', 'DoNotEnforce')]"
+                    },
+                    "scope": {
+                        "value": "[variables('scopes').landingZonesManagementGroup]"
                     }
                 }
             }
@@ -2493,6 +2499,9 @@
                     },
                     "enforcementMode": {
                         "value": "[if(equals(parameters('enableaksPolicy'), 'Yes'), 'Default', 'DoNotEnforce')]"
+                    },
+                    "scope": {
+                        "value": "[variables('scopes').landingZonesManagementGroup]"
                     }
                 }
             }
@@ -2517,6 +2526,9 @@
                 "parameters": {
                     "enforcementMode": {
                         "value": "[if(equals(parameters('denyAksPrivilegedEscalation'), 'Yes'), 'Default', 'DoNotEnforce')]"
+                    },
+                    "scope": {
+                        "value": "[variables('scopes').landingZonesManagementGroup]"
                     }
                 }
             }
@@ -2541,6 +2553,9 @@
                 "parameters": {
                     "enforcementMode": {
                         "value": "[if(equals(parameters('denyAksPrivileged'), 'Yes'), 'Default', 'DoNotEnforce')]"
+                    },
+                    "scope": {
+                        "value": "[variables('scopes').landingZonesManagementGroup]"
                     }
                 }
             }
@@ -2565,6 +2580,9 @@
                 "parameters": {
                     "enforcementMode": {
                         "value": "[if(equals(parameters('denyHttpIngressForAks'), 'Yes'), 'Default', 'DoNotEnforce')]"
+                    },
+                    "scope": {
+                        "value": "[variables('scopes').landingZonesManagementGroup]"
                     }
                 }
             }
@@ -2592,6 +2610,9 @@
                     },
                     "enforcementMode": {
                         "value": "[if(equals(parameters('enableEncryptionInTransit'), 'Yes'), 'Default', 'DoNotEnforce')]"
+                    },
+                    "scope": {
+                        "value": "[variables('scopes').landingZonesManagementGroup]"
                     }
                 }
             }
@@ -2616,6 +2637,9 @@
                 "parameters": {
                     "enforcementMode": {
                         "value": "Default"
+                    },
+                    "scope": {
+                        "value": "[variables('scopes').landingZonesManagementGroup]"
                     }
                 }
             }
@@ -2673,6 +2697,9 @@
                     },
                     "enforcementMode": {
                         "value": "Default"
+                    },
+                    "scope": {
+                        "value": "[variables('scopes').landingZonesManagementGroup]"
                     }
                 }
             }
@@ -2697,6 +2724,9 @@
                 "parameters": {
                     "enforcementMode": {
                         "value": "Default"
+                    },
+                    "scope": {
+                        "value": "[variables('scopes').landingZonesManagementGroup]"
                     }
                 }
             }
@@ -2724,6 +2754,9 @@
                     },
                     "enforcementMode": {
                         "value": "Default"
+                    },
+                    "scope": {
+                        "value": "[variables('scopes').landingZonesManagementGroup]"
                     }
                 }
             }
@@ -2751,6 +2784,9 @@
                     },
                     "enforcementMode": {
                         "value": "Default"
+                    },
+                    "scope": {
+                        "value": "[variables('scopes').landingZonesManagementGroup]"
                     }
                 }
             }
@@ -2778,6 +2814,9 @@
                     },
                     "enforcementMode": {
                         "value": "Default"
+                    },
+                    "scope": {
+                        "value": "[variables('scopes').landingZonesManagementGroup]"
                     }
                 }
             }
