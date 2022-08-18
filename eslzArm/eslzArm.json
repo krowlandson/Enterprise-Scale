@@ -1840,9 +1840,6 @@
                     },
                     "erRegionalSku": {
                         "value": "[parameters('erRegionalSku')]"
-                    },
-                    "scope": {
-                        "value": "[variables('scopes').connectivityManagementGroup]"
                     }
                 }
             }
@@ -1919,9 +1916,6 @@
                     },
                     "erRegionalSku": {
                         "value": "[parameters('erRegionalSku')]"
-                    },
-                    "scope": {
-                        "value": "[variables('scopes').connectivityManagementGroup]"
                     }
                 }
             }
@@ -1989,9 +1983,6 @@
                     },
                     "vpnGateWayScaleUnit": {
                         "value": "[parameters('vpnGateWayScaleUnit')]"
-                    },
-                    "scope": {
-                        "value": "[variables('scopes').connectivityManagementGroup]"
                     }
                 }
             }
@@ -3726,9 +3717,6 @@
                     },
                     "erRegionalSku": {
                         "value": "[parameters('erRegionalSku')]"
-                    },
-                    "scope": {
-                        "value": "[variables('scopes').platformManagementGroup]"
                     }
                 }
             }
@@ -3806,9 +3794,6 @@
                     },
                     "erRegionalSku": {
                         "value": "[parameters('erRegionalSku')]"
-                    },
-                    "scope": {
-                        "value": "[variables('scopes').platformManagementGroup]"
                     }
                 }
             }
@@ -3876,9 +3861,6 @@
                     },
                     "vpnGateWayScaleUnit": {
                         "value": "[parameters('vpnGateWayScaleUnit')]"
-                    },
-                    "scope": {
-                        "value": "[variables('scopes').platformManagementGroup]"
                     }
                 }
             }
