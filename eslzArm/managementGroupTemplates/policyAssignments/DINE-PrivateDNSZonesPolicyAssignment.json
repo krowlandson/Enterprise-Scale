@@ -30,9 +30,8 @@
         },
         "scope": {
             "type": "string",
-            "defaultValue": "[managementGroup().id]",
             "metadata": {
-                "description": "Optionally set the scope for resources deployed by this template. Must be one of '/', '/subscriptions/id' or '/providers/Microsoft.Management/managementGroups/id'. DEFAULT VALUE = '[managementGroup().id]'"
+                "description": "Set the scope for resources deployed by this template. Must be one of '/', '/subscriptions/id' or '/providers/Microsoft.Management/managementGroups/id'."
             }
         }
     },
