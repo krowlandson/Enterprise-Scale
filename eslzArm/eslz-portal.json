@@ -267,7 +267,7 @@
                                 {
                                     "name": "cuaSettingsInfo",
                                     "type": "Microsoft.Common.InfoBox",
-                                    "visible": "[equals(steps('basics').cloudEnvironment.selection, 'AzureCloud')]",
+                                    "visible": true,
                                     "options": {
                                         "text": "Microsoft can identify the deployments of the Azure Resource Manager templates with the deployed Azure resources. Microsoft collects this information to provide the best experiences with their products and to operate their business. The telemetry is collected through customer usage attribution. The data is collected and governed by Microsoft's privacy policies, located at the trust center. Visit this link to find out more.",
                                         "uri": "https://github.com/Azure/Enterprise-Scale/wiki/Deploying-Enterprise-Scale-CustomerUsage",
@@ -277,7 +277,7 @@
                                 {
                                     "name": "telemetryOptOut",
                                     "type": "Microsoft.Common.OptionsGroup",
-                                    "visible": "[equals(steps('basics').cloudEnvironment.selection, 'AzureCloud')]",
+                                    "visible": true,
                                     "label": "Customer Usage Selection Options",
                                     "defaultValue": "[if(equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'), 'Enabled', 'Disabled')]",
                                     "constraints": {
@@ -295,7 +295,7 @@
                                     }
                                 }
                             ],
-                            "visible": "[and(not(steps('core').rootManagementGroup.preStageMgsOnly), equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'))]"
+                            "visible": "[equals(steps('basics').cloudEnvironment.selection, 'AzureCloud')]"
                         }
                     ]
                 },
