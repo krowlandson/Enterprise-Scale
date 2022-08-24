@@ -314,7 +314,7 @@
                             "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                             "options": {
                                 "icon": "Warning",
-                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for \"Pre-stage management groups only\"."
+                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for the setting \"Pre-stage management groups only\" under \"Azure core setup\"."
                             }
                         },
                         {
@@ -865,7 +865,7 @@
                             "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                             "options": {
                                 "icon": "Warning",
-                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for \"Pre-stage management groups only\"."
+                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for the setting \"Pre-stage management groups only\" under \"Azure core setup\"."
                             }
                         },
                         {
@@ -1033,7 +1033,7 @@
                             "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                             "options": {
                                 "icon": "Warning",
-                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for \"Pre-stage management groups only\"."
+                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for the setting \"Pre-stage management groups only\" under \"Azure core setup\"."
                             }
                         },
                         {
@@ -1832,7 +1832,7 @@
                             "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                             "options": {
                                 "icon": "Warning",
-                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for \"Pre-stage management groups only\"."
+                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for the setting \"Pre-stage management groups only\" under \"Azure core setup\"."
                             }
                         },
                         {
@@ -2044,7 +2044,7 @@
                             "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                             "options": {
                                 "icon": "Warning",
-                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for \"Pre-stage management groups only\"."
+                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for the setting \"Pre-stage management groups only\" under \"Azure core setup\"."
                             }
                         },
                         {
