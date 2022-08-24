@@ -309,6 +309,15 @@
                     "bladeTitle": "ALZ - Management Settings",
                     "elements": [
                         {
+                            "name": "preStageMgsOnlyWarning",
+                            "type": "Microsoft.Common.InfoBox",
+                            "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
+                            "options": {
+                                "icon": "Warning",
+                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for \"Pre-stage management groups only\"."
+                            }
+                        },
+                        {
                             "name": "multiPlatformMgmtSub",
                             "type": "Microsoft.Common.InfoBox",
                             "visible": "[not(equals(steps('core').platform.subscriptionOption, 'Single'))]",
@@ -851,6 +860,15 @@
                     "bladeTitle": "ALZ - Automation Settings",
                     "elements": [
                         {
+                            "name": "preStageMgsOnlyWarning",
+                            "type": "Microsoft.Common.InfoBox",
+                            "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
+                            "options": {
+                                "icon": "Warning",
+                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for \"Pre-stage management groups only\"."
+                            }
+                        },
+                        {
                             "name": "info",
                             "type": "Microsoft.Common.InfoBox",
                             "visible": "[or(not(empty(steps('management').esMgmtSubSection.esMgmtSub)), not(empty(steps('core').singleSubscription.selector)))]",
@@ -1009,6 +1027,15 @@
                     },
                     "bladeTitle": "ALZ - Connectivity Settings",
                     "elements": [
+                        {
+                            "name": "preStageMgsOnlyWarning",
+                            "type": "Microsoft.Common.InfoBox",
+                            "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
+                            "options": {
+                                "icon": "Warning",
+                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for \"Pre-stage management groups only\"."
+                            }
+                        },
                         {
                             "name": "multiPlatformConnectivitySub",
                             "type": "Microsoft.Common.InfoBox",
@@ -1800,6 +1827,15 @@
                     "bladeTitle": "ALZ - Identity Settings",
                     "elements": [
                         {
+                            "name": "preStageMgsOnlyWarning",
+                            "type": "Microsoft.Common.InfoBox",
+                            "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
+                            "options": {
+                                "icon": "Warning",
+                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for \"Pre-stage management groups only\"."
+                            }
+                        },
+                        {
                             "name": "multiPlatformIdentitySub",
                             "type": "Microsoft.Common.InfoBox",
                             "visible": "[not(equals(steps('core').platform.subscriptionOption, 'Single'))]",
@@ -2002,6 +2038,15 @@
                     },
                     "bladeTitle": "ALZ - Landing Zones Settings",
                     "elements": [
+                        {
+                            "name": "preStageMgsOnlyWarning",
+                            "type": "Microsoft.Common.InfoBox",
+                            "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
+                            "options": {
+                                "icon": "Warning",
+                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for \"Pre-stage management groups only\"."
+                            }
+                        },
                         {
                             "name": "infoBox1",
                             "type": "Microsoft.Common.InfoBox",
