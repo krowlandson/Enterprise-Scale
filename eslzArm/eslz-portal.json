@@ -127,7 +127,7 @@
                         {
                             "name": "rootManagementGroup",
                             "type": "Microsoft.Common.Section",
-                            "label": "Root management group configuration",
+                            "label": "Intermediate root management group configuration",
                             "elements": [
                                 {
                                     "name": "message",
@@ -135,8 +135,8 @@
                                     "visible": true,
                                     "options": {
                                         "icon": "Info",
-                                        "text": "By default, this custom template will create the full reference Azure landing zone management group hierarchy under the management group selected in the previous \"Deployment settings\" step. To create a new \"root\" management group, select \"Create new (recommended)\". To use an existing management group, select \"Use existing\".",
-                                        "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-group-and-subscription-organization"
+                                        "text": "By default, this custom template will create the full reference Azure landing zone management group hierarchy under the management group selected in the previous \"Deployment settings\" step. To create a new \"intermediate root\" management group, select \"Create new (recommended)\". To use an existing management group, select \"Use existing\".",
+                                        "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator"
                                     }
                                 },
                                 {
@@ -144,7 +144,7 @@
                                     "type": "Microsoft.Common.OptionsGroup",
                                     "label": "Create new or use existing root management group",
                                     "defaultValue": "Create new (recommended)",
-                                    "toolTip": "The recommended option is to create a new root management group.",
+                                    "toolTip": "The recommended option is to create a new intermediate root management group.",
                                     "constraints": {
                                         "allowedValues": [
                                             {
@@ -165,7 +165,7 @@
                                     "type": "Microsoft.Common.DropDown",
                                     "label": "Parent Management Group",
                                     "defaultValue": "[steps('basics').resourceScope.managementGroup.displayName]",
-                                    "toolTip": "Specify which management group to use as the parent management group when creating a new root management group. This would usually be the \"Tenant Root Group\".",
+                                    "toolTip": "Specify which management group to use as the parent management group when creating a new intermediate root management group. This would usually be the \"Tenant Root Group\".",
                                     "multiselect": false,
                                     "selectAll": false,
                                     "filter": true,
@@ -226,7 +226,7 @@
                                     "visible": true
                                 }
                             ],
-                            "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]"
+                            "visible": true
                         },
                         {
                             "name": "singleSubscription",
@@ -245,7 +245,7 @@
                                 {
                                     "name": "singleSubText",
                                     "type": "Microsoft.Common.TextBlock",
-                                    "visible": true,
+                                    "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]",
                                     "options": {
                                         "text": "Select a single subscription that will be used for all platform resources. This includes resources relating to platform management, security, governance, automation, connectivity, and identity."
                                     }
@@ -253,11 +253,11 @@
                                 {
                                     "name": "selector",
                                     "type": "Microsoft.Common.SubscriptionSelector",
-                                    "visible": true,
+                                    "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]",
                                     "label": "Single platform subscription"
                                 }
                             ],
-                            "visible": "[and(not(steps('core').rootManagementGroup.preStageMgsOnly), equals(steps('core').platform.subscriptionOption, 'Single'))]"
+                            "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]"
                         },
                         {
                             "name": "cuaSection",
