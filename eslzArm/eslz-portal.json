@@ -365,7 +365,7 @@
                             "label": "Log Analytics settings",
                             "elements": [
                                 {
-                                    "name": "enable",
+                                    "name": "enableLogAnalytics",
                                     "type": "Microsoft.Common.OptionsGroup",
                                     "label": "Deploy Log Analytics workspace and enable monitoring for your platform and resources",
                                     "defaultValue": "Yes (recommended)",
