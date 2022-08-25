@@ -2730,7 +2730,7 @@
                 "enableAscForAppServices": "[steps('management').security.enableAscForAppServices]",
                 "enableAscForStorage": "[steps('management').security.enableAscForStorage]",
                 "enableAscForSql": "[steps('management').security.enableAscForSql]",
-                "enableAscForSqlOnVm": "[steps('management').esecurity.nableAscForSqlOnVm]",
+                "enableAscForSqlOnVm": "[steps('management').security.enableAscForSqlOnVm]",
                 "enableAscForKeyVault": "[steps('management').security.enableAscForKeyVault]",
                 "enableAscForArm": "[steps('management').security.enableAscForArm]",
                 "enableAscForDns": "[steps('management').security.enableAscForDns]",
