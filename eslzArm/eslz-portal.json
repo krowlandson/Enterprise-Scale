@@ -645,7 +645,7 @@
                                     }
                                 },
                                 {
-                                    "name": "enableForServers",
+                                    "name": "enableAscForServers",
                                     "type": "Microsoft.Common.OptionsGroup",
                                     "label": "Enable Microsoft Defender for Cloud for servers",
                                     "defaultValue": "Yes (recommended)",
@@ -665,7 +665,7 @@
                                     }
                                 },
                                 {
-                                    "name": "enableForOssDb",
+                                    "name": "enableAscForOssDb",
                                     "type": "Microsoft.Common.OptionsGroup",
                                     "label": "Enable Microsoft Defender for Cloud for open-source relational databases",
                                     "defaultValue": "Yes (recommended)",
@@ -685,7 +685,7 @@
                                     }
                                 },
                                 {
-                                    "name": "enableForAppServices",
+                                    "name": "enableAscForAppServices",
                                     "type": "Microsoft.Common.OptionsGroup",
                                     "label": "Enable Microsoft Defender for Cloud for AppServices",
                                     "defaultValue": "Yes (recommended)",
@@ -705,7 +705,7 @@
                                     }
                                 },
                                 {
-                                    "name": "enableForStorage",
+                                    "name": "enableAscForStorage",
                                     "type": "Microsoft.Common.OptionsGroup",
                                     "label": "Enable Microsoft Defender for Cloud for Storage",
                                     "defaultValue": "Yes (recommended)",
@@ -725,7 +725,7 @@
                                     }
                                 },
                                 {
-                                    "name": "enableForSql",
+                                    "name": "enableAscForSql",
                                     "type": "Microsoft.Common.OptionsGroup",
                                     "label": "Enable Microsoft Defender for Cloud for Azure SQL Database",
                                     "defaultValue": "Yes (recommended)",
@@ -745,7 +745,7 @@
                                     }
                                 },
                                 {
-                                    "name": "enableForSqlOnVm",
+                                    "name": "enableAscForSqlOnVm",
                                     "type": "Microsoft.Common.OptionsGroup",
                                     "label": "Enable Microsoft Defender for Cloud for SQL servers on machines",
                                     "defaultValue": "Yes (recommended)",
@@ -765,7 +765,7 @@
                                     }
                                 },
                                 {
-                                    "name": "enableForKeyVault",
+                                    "name": "enableAscForKeyVault",
                                     "type": "Microsoft.Common.OptionsGroup",
                                     "label": "Enable Microsoft Defender for Cloud for Key Vault",
                                     "defaultValue": "Yes (recommended)",
@@ -785,7 +785,7 @@
                                     }
                                 },
                                 {
-                                    "name": "enableForArm",
+                                    "name": "enableAscForArm",
                                     "type": "Microsoft.Common.OptionsGroup",
                                     "label": "Enable Microsoft Defender for Cloud for Azure Resource Manager",
                                     "defaultValue": "Yes (recommended)",
@@ -805,7 +805,7 @@
                                     }
                                 },
                                 {
-                                    "name": "enableForDns",
+                                    "name": "enableAscForDns",
                                     "type": "Microsoft.Common.OptionsGroup",
                                     "label": "Enable Microsoft Defender for Cloud for DNS",
                                     "defaultValue": "Yes (recommended)",
@@ -825,7 +825,7 @@
                                     }
                                 },
                                 {
-                                    "name": "enableForContainers",
+                                    "name": "enableAscForContainers",
                                     "type": "Microsoft.Common.OptionsGroup",
                                     "label": "Enable Microsoft Defender for Cloud for Containers (Kubernetes and Container Registries)",
                                     "defaultValue": "Yes (recommended)",
