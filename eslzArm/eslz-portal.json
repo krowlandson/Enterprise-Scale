@@ -135,7 +135,7 @@
                                     "visible": true,
                                     "options": {
                                         "icon": "Info",
-                                        "text": "By default, this custom template will create the full reference Azure landing zone management group hierarchy under the management group selected in the previous \"Deployment settings\" step. To create a new \"intermediate root\" management group, select \"Create new (recommended)\". To use an existing management group, select \"Use existing\".",
+                                        "text": "By default, this custom template will create the full reference Azure landing zone management group hierarchy under the management group selected in the previous 'Deployment settings' step. To create a new 'intermediate root' management group, select 'Create new (recommended)'. To use an existing management group, select 'Use existing'.",
                                         "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator"
                                     }
                                 },
@@ -165,7 +165,7 @@
                                     "type": "Microsoft.Common.DropDown",
                                     "label": "Parent Management Group",
                                     "defaultValue": "[steps('basics').resourceScope.managementGroup.displayName]",
-                                    "toolTip": "Specify which management group to use as the parent management group when creating a new intermediate root management group. This would usually be the \"Tenant Root Group\".",
+                                    "toolTip": "Specify which management group to use as the parent management group when creating a new intermediate root management group. This would usually be the 'Tenant Root Group'.",
                                     "multiselect": false,
                                     "selectAll": false,
                                     "filter": true,
@@ -181,7 +181,7 @@
                                     "type": "Microsoft.Common.OptionsGroup",
                                     "label": "Pre-stage management groups only",
                                     "defaultValue": "No (default)",
-                                    "toolTip": "Select \"Yes\" to only create the management group hierarchy. Useful when user permissions are limited.",
+                                    "toolTip": "Select 'Yes' to only create the management group hierarchy. Useful when user permissions are limited.",
                                     "constraints": {
                                         "allowedValues": [
                                             {
@@ -314,23 +314,13 @@
                             "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                             "options": {
                                 "icon": "Warning",
-                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for the setting \"Pre-stage management groups only\" under \"Azure core setup\"."
-                            }
-                        },
-                        {
-                            "name": "multiPlatformMgmtSub",
-                            "type": "Microsoft.Common.InfoBox",
-                            "visible": "[not(equals(steps('core').platform.subscriptionOption, 'Single'))]",
-                            "options": {
-                                "text": "To enable platform management, security and governance, you must allocate a management Subscription. Please note, this Subscription will be moved to the platform Management Group, and ARM will deploy a Log Analytics workspace and requisite settings. We recommend using a new Subscription with no existing resources. Note that Azure Policy will be used to govern the configuration for the platform at scale.",
-                                "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-and-monitoring",
-                                "style": "Info"
+                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select 'No (default)' for the setting 'Pre-stage management groups only' under 'Azure core setup'."
                             }
                         },
                         {
                             "name": "singlePlatformMgmtSub",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]",
+                            "visible": "[and(not(steps('core').rootManagementGroup.preStageMgsOnly), equals(steps('core').platform.subscriptionOption, 'Single'))]",
                             "options": {
                                 "text": "To enable platform management, security and governance, you can configure core infra such as Log Analytics, Azure Security Center and additional monitoring solutions to your dedicated platform subscription. Note that Azure Policy will be used to govern the configuration for the platform at scale.",
                                 "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-and-monitoring",
@@ -338,45 +328,20 @@
                             }
                         },
                         {
-                            "name": "enableLogAnalytics",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Deploy Log Analytics workspace and enable monitoring for your platform and resources",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance.",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "Yes"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "No"
-                                    }
-                                ]
-                            },
-                            "visible": true
-                        },
-                        {
-                            "name": "retentionInDays",
-                            "type": "Microsoft.Common.Slider",
-                            "min": 30,
-                            "max": 730,
-                            "label": "Log Analytics Data Retention (days)",
-                            "subLabel": "Days",
-                            "defaultValue": 30,
-                            "showStepMarkers": false,
-                            "toolTip": "Select retention days for Azure logs. Default is 30 days.",
-                            "constraints": {
-                                "required": false
-                            },
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]"
-                        },
-                        {
                             "name": "esMgmtSubSection",
                             "type": "Microsoft.Common.Section",
                             "label": "Management subscription",
                             "elements": [
+                                {
+                                    "name": "multiPlatformMgmtSub",
+                                    "type": "Microsoft.Common.InfoBox",
+                                    "visible": true,
+                                    "options": {
+                                        "text": "To enable platform management, security and governance, you must allocate a management Subscription. Please note, this Subscription will be moved to the platform Management Group, and ARM will deploy a Log Analytics workspace and requisite settings. We recommend using a new Subscription with no existing resources. Note that Azure Policy will be used to govern the configuration for the platform at scale.",
+                                        "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-and-monitoring",
+                                        "style": "Info"
+                                    }
+                                },
                                 {
                                     "name": "esMgmtSubUniqueWarning",
                                     "type": "Microsoft.Common.InfoBox",
@@ -392,464 +357,515 @@
                                     "label": "Management subscription"
                                 }
                             ],
-                            "visible": "[and(equals(steps('management').enableLogAnalytics, 'Yes'), not(equals(steps('core').platform.subscriptionOption, 'Single')))]"
+                            "visible": "[and(not(steps('core').rootManagementGroup.preStageMgsOnly), not(equals(steps('core').platform.subscriptionOption, 'Single')))]"
                         },
                         {
                             "name": "monitoring",
-                            "type": "Microsoft.Common.TextBlock",
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]",
-                            "options": {
-                                "text": "Select which Azure Monitor solutions you will enable for your Log Analytics workspace",
-                                "link": {
-                                    "label": "Learn more",
-                                    "uri": "https://docs.microsoft.com/azure/azure-monitor/insights/solutions"
+                            "type": "Microsoft.Common.Section",
+                            "label": "Log Analytics settings",
+                            "elements": [
+                                {
+                                    "name": "enable",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Deploy Log Analytics workspace and enable monitoring for your platform and resources",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance.",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "Yes"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "No"
+                                            }
+                                        ]
+                                    },
+                                    "visible": true
+                                },
+                                {
+                                    "name": "retentionInDays",
+                                    "type": "Microsoft.Common.Slider",
+                                    "min": 30,
+                                    "max": 730,
+                                    "label": "Log Analytics Data Retention (days)",
+                                    "subLabel": "Days",
+                                    "defaultValue": 30,
+                                    "showStepMarkers": false,
+                                    "toolTip": "Select retention days for Azure logs. Default is 30 days.",
+                                    "constraints": {
+                                        "required": false
+                                    },
+                                    "visible": "[equals(steps('management').monitoring.enableLogAnalytics,'Yes')]"
+                                },
+                                {
+                                    "name": "monitoring",
+                                    "type": "Microsoft.Common.TextBlock",
+                                    "visible": "[equals(steps('management').monitoring.enableLogAnalytics,'Yes')]",
+                                    "options": {
+                                        "text": "Select which Azure Monitor solutions you will enable for your Log Analytics workspace",
+                                        "link": {
+                                            "label": "Learn more",
+                                            "uri": "https://docs.microsoft.com/azure/azure-monitor/insights/solutions"
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "enableAgentHealth",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Deploy Agent Health solution",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "Yes"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "No"
+                                            }
+                                        ]
+                                    },
+                                    "visible": "[equals(steps('management').monitoring.enableLogAnalytics,'Yes')]"
+                                },
+                                {
+                                    "name": "enableChangeTracking",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Deploy Change Tracking solution",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "Yes"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "No"
+                                            }
+                                        ]
+                                    },
+                                    "visible": "[equals(steps('management').monitoring.enableLogAnalytics,'Yes')]"
+                                },
+                                {
+                                    "name": "enableUpdateMgmt",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Deploy Update Management solution",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "Yes"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "No"
+                                            }
+                                        ]
+                                    },
+                                    "visible": "[equals(steps('management').monitoring.enableLogAnalytics,'Yes')]"
+                                },
+                                {
+                                    "name": "enableActivityLog",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Deploy Activity Log solution",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "Yes"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "No"
+                                            }
+                                        ]
+                                    },
+                                    "visible": "[equals(steps('management').monitoring.enableLogAnalytics,'Yes')]"
+                                },
+                                {
+                                    "name": "enableVmInsights",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Deploy VM Insights solution",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "Yes"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "No"
+                                            }
+                                        ]
+                                    },
+                                    "visible": "[equals(steps('management').monitoring.enableLogAnalytics,'Yes')]"
+                                },
+                                {
+                                    "name": "enableServiceMap",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Deploy Service Map solution",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "Yes"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "No"
+                                            }
+                                        ]
+                                    },
+                                    "visible": "[equals(steps('management').monitoring.enableLogAnalytics,'Yes')]"
+                                },
+                                {
+                                    "name": "enableSqlAssessment",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Deploy SQL Assessment solution",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "Yes"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "No"
+                                            }
+                                        ]
+                                    },
+                                    "visible": "[equals(steps('management').monitoring.enableLogAnalytics,'Yes')]"
+                                },
+                                {
+                                    "name": "enableSqlVulnerabilityAssessment",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Deploy SQL Vulnerability Assessment solution",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "Yes"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "No"
+                                            }
+                                        ]
+                                    },
+                                    "visible": "[equals(steps('management').monitoring.enableLogAnalytics,'Yes')]"
+                                },
+                                {
+                                    "name": "enableSqlAdvancedThreatProtection",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Deploy SQL Advanced Threat Protection solution",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "Yes"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "No"
+                                            }
+                                        ]
+                                    },
+                                    "visible": "[equals(steps('management').monitoring.enableLogAnalytics,'Yes')]"
                                 }
-                            }
+                            ],
+                            "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]"
                         },
                         {
-                            "name": "enableAgentHealth",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Deploy Agent Health solution",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "Yes"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "No"
+                            "name": "security",
+                            "type": "Microsoft.Common.Section",
+                            "label": "Microsoft Defender for Cloud settings",
+                            "elements": [
+                                {
+                                    "name": "informationMessage",
+                                    "type": "Microsoft.Common.TextBlock",
+                                    "visible": true,
+                                    "options": {
+                                        "text": "Select which Microsoft Defender for Cloud solutions you will enable.",
+                                        "link": {
+                                            "label": "Learn more",
+                                            "uri": "https://docs.microsoft.com/azure/security/fundamentals/overview"
+                                        }
                                     }
-                                ]
-                            },
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]"
-                        },
-                        {
-                            "name": "enableChangeTracking",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Deploy Change Tracking solution",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "Yes"
+                                },
+                                {
+                                    "name": "enableAsc",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Deploy Microsoft Defender for Cloud and enable security monitoring for your platform and resources",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "Yes"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "No"
+                                            }
+                                        ]
                                     },
-                                    {
-                                        "label": "No",
-                                        "value": "No"
+                                    "visible": true
+                                },
+                                {
+                                    "name": "emailContactAsc",
+                                    "type": "Microsoft.Common.TextBox",
+                                    "label": "Microsoft Defender for Cloud Email Contact",
+                                    "toolTip": "Email address to get email notifications from Azure Security Center",
+                                    "visible": "[equals(steps('management').security.enableAsc,'Yes')]",
+                                    "defaultValue": "",
+                                    "constraints": {
+                                        "required": "[equals(steps('management').security.enableAsc,'Yes')]",
+                                        "regex": "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$",
+                                        "validationMessage": "Please provide a valid email address"
                                     }
-                                ]
-                            },
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]"
-                        },
-                        {
-                            "name": "enableUpdateMgmt",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Deploy Update Management solution",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "Yes"
+                                },
+                                {
+                                    "name": "enableForServers",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Enable Microsoft Defender for Cloud for servers",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for all servers.",
+                                    "visible": "[equals(steps('management').security.enableAsc,'Yes')]",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "DeployIfNotExists"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "Disabled"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "enableForOssDb",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Enable Microsoft Defender for Cloud for open-source relational databases",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for open-source relational databases.",
+                                    "visible": "[and(equals(steps('management').security.enableAsc,'Yes'), equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'))]",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "DeployIfNotExists"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "Disabled"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "enableForAppServices",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Enable Microsoft Defender for Cloud for AppServices",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for AppServices.",
+                                    "visible": "[and(equals(steps('management').security.enableAsc,'Yes'), equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'))]",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "DeployIfNotExists"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "Disabled"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "enableForStorage",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Enable Microsoft Defender for Cloud for Storage",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for Storage.",
+                                    "visible": "[and(equals(steps('management').security.enableAsc,'Yes'), or(equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'), equals(steps('basics').cloudEnvironment.selection, 'AzureUSGovernment')))]",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "DeployIfNotExists"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "Disabled"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "enableForSql",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Enable Microsoft Defender for Cloud for Azure SQL Database",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for Azure SQL Database.",
+                                    "visible": "[equals(steps('management').security.enableAsc,'Yes')]",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "DeployIfNotExists"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "Disabled"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "enableForSqlOnVm",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Enable Microsoft Defender for Cloud for SQL servers on machines",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for SQL servers on machines.",
+                                    "visible": "[and(equals(steps('management').security.enableAsc,'Yes'), equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'))]",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "DeployIfNotExists"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "Disabled"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "enableForKeyVault",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Enable Microsoft Defender for Cloud for Key Vault",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for Key Vault.",
+                                    "visible": "[and(equals(steps('management').security.enableAsc,'Yes'), equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'))]",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "DeployIfNotExists"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "Disabled"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "enableForArm",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Enable Microsoft Defender for Cloud for Azure Resource Manager",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for Resource Manager.",
+                                    "visible": "[and(equals(steps('management').security.enableAsc,'Yes'), or(equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'), equals(steps('basics').cloudEnvironment.selection, 'AzureUSGovernment')))]",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "DeployIfNotExists"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "Disabled"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "enableForDns",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Enable Microsoft Defender for Cloud for DNS",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for DNS.",
+                                    "visible": "[and(equals(steps('management').security.enableAsc,'Yes'), or(equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'), equals(steps('basics').cloudEnvironment.selection, 'AzureUSGovernment')))]",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "DeployIfNotExists"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "Disabled"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "enableForContainers",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Enable Microsoft Defender for Cloud for Containers (Kubernetes and Container Registries)",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for Containers (Kubernetes and Container Registries).",
+                                    "visible": "[equals(steps('management').security.enableAsc,'Yes')]",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "DeployIfNotExists"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "Disabled"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "enableSecuritySolution",
+                                    "type": "Microsoft.Common.OptionsGroup",
+                                    "label": "Deploy Microsoft Sentinel",
+                                    "defaultValue": "Yes (recommended)",
+                                    "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
+                                    "constraints": {
+                                        "allowedValues": [
+                                            {
+                                                "label": "Yes (recommended)",
+                                                "value": "Yes"
+                                            },
+                                            {
+                                                "label": "No",
+                                                "value": "No"
+                                            }
+                                        ]
                                     },
-                                    {
-                                        "label": "No",
-                                        "value": "No"
-                                    }
-                                ]
-                            },
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]"
-                        },
-                        {
-                            "name": "enableActivityLog",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Deploy Activity Log solution",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "Yes"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "No"
-                                    }
-                                ]
-                            },
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]"
-                        },
-                        {
-                            "name": "enableVmInsights",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Deploy VM Insights solution",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "Yes"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "No"
-                                    }
-                                ]
-                            },
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]"
-                        },
-                        {
-                            "name": "enableServiceMap",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Deploy Service Map solution",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "Yes"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "No"
-                                    }
-                                ]
-                            },
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]"
-                        },
-                        {
-                            "name": "enableSqlAssessment",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Deploy SQL Assessment solution",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "Yes"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "No"
-                                    }
-                                ]
-                            },
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]"
-                        },
-                        {
-                            "name": "enableSqlVulnerabilityAssessment",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Deploy SQL Vulnerability Assessment solution",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "Yes"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "No"
-                                    }
-                                ]
-                            },
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]"
-                        },
-                        {
-                            "name": "enableSqlAdvancedThreatProtection",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Deploy SQL Advanced Threat Protection solution",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "Yes"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "No"
-                                    }
-                                ]
-                            },
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]"
-                        },
-                        {
-                            "name": "textBlock0",
-                            "type": "Microsoft.Common.TextBlock",
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]",
-                            "options": {
-                                "text": "Select which Microsoft Defender for Cloud solutions you will enable.",
-                                "link": {
-                                    "label": "Learn more",
-                                    "uri": "https://docs.microsoft.com/azure/security/fundamentals/overview"
+                                    "visible": true
                                 }
-                            }
-                        },
-                        {
-                            "name": "enableAsc",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Deploy Microsoft Defender for Cloud and enable security monitoring for your platform and resources",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "Yes"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "No"
-                                    }
-                                ]
-                            },
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]"
-                        },
-                        {
-                            "name": "emailContactAsc",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Microsoft Defender for Cloud Email Contact",
-                            "toolTip": "Email address to get email notifications from Azure Security Center",
-                            "visible": "[equals(steps('management').enableAsc,'Yes')]",
-                            "defaultValue": "",
-                            "constraints": {
-                                "required": "[equals(steps('management').enableAsc,'Yes')]",
-                                "regex": "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$",
-                                "validationMessage": "Please provide a valid email address"
-                            }
-                        },
-                        {
-                            "name": "enableAscForServers",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Enable Microsoft Defender for Cloud for servers",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for all servers.",
-                            "visible": "[equals(steps('management').enableAsc,'Yes')]",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "DeployIfNotExists"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "Disabled"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "enableAscForOssDb",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Enable Microsoft Defender for Cloud for open-source relational databases",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for open-source relational databases.",
-                            "visible": "[and(equals(steps('management').enableAsc,'Yes'), equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'))]",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "DeployIfNotExists"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "Disabled"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "enableAscForAppServices",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Enable Microsoft Defender for Cloud for AppServices",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for AppServices.",
-                            "visible": "[and(equals(steps('management').enableAsc,'Yes'), equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'))]",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "DeployIfNotExists"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "Disabled"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "enableAscForStorage",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Enable Microsoft Defender for Cloud for Storage",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for Storage.",
-                            "visible": "[and(equals(steps('management').enableAsc,'Yes'), or(equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'), equals(steps('basics').cloudEnvironment.selection, 'AzureUSGovernment')))]",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "DeployIfNotExists"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "Disabled"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "enableAscForSql",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Enable Microsoft Defender for Cloud for Azure SQL Database",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for Azure SQL Database.",
-                            "visible": "[equals(steps('management').enableAsc,'Yes')]",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "DeployIfNotExists"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "Disabled"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "enableAscForSqlOnVm",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Enable Microsoft Defender for Cloud for SQL servers on machines",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for SQL servers on machines.",
-                            "visible": "[and(equals(steps('management').enableAsc,'Yes'), equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'))]",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "DeployIfNotExists"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "Disabled"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "enableAscForKeyVault",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Enable Microsoft Defender for Cloud for Key Vault",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for Key Vault.",
-                            "visible": "[and(equals(steps('management').enableAsc,'Yes'), equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'))]",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "DeployIfNotExists"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "Disabled"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "enableAscForArm",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Enable Microsoft Defender for Cloud for Azure Resource Manager",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for Resource Manager.",
-                            "visible": "[and(equals(steps('management').enableAsc,'Yes'), or(equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'), equals(steps('basics').cloudEnvironment.selection, 'AzureUSGovernment')))]",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "DeployIfNotExists"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "Disabled"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "enableAscForDns",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Enable Microsoft Defender for Cloud for DNS",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for DNS.",
-                            "visible": "[and(equals(steps('management').enableAsc,'Yes'), or(equals(steps('basics').cloudEnvironment.selection, 'AzureCloud'), equals(steps('basics').cloudEnvironment.selection, 'AzureUSGovernment')))]",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "DeployIfNotExists"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "Disabled"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "enableAscForContainers",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Enable Microsoft Defender for Cloud for Containers (Kubernetes and Container Registries)",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected, Microsoft Defender for Cloud will be enabled for Containers (Kubernetes and Container Registries).",
-                            "visible": "[equals(steps('management').enableAsc,'Yes')]",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "DeployIfNotExists"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "Disabled"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "enableSecuritySolution",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Deploy Microsoft Sentinel",
-                            "defaultValue": "Yes (recommended)",
-                            "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continuous compliance",
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes (recommended)",
-                                        "value": "Yes"
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": "No"
-                                    }
-                                ]
-                            },
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]"
+                            ],
+                            "visible": "[and(not(steps('core').rootManagementGroup.preStageMgsOnly), equals(steps('management').monitoring.enableLogAnalytics,'Yes'))]"
                         }
                     ]
                 },
@@ -865,7 +881,7 @@
                             "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                             "options": {
                                 "icon": "Warning",
-                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for the setting \"Pre-stage management groups only\" under \"Azure core setup\"."
+                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select 'No (default)' for the setting 'Pre-stage management groups only' under 'Azure core setup'."
                             }
                         },
                         {
@@ -881,7 +897,7 @@
                         {
                             "name": "correction",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[and(equals(steps('management').enableLogAnalytics, 'No'), not(equals(steps('core').platform.subscriptionOption, 'Single')))]",
+                            "visible": "[and(equals(steps('management').monitoring.enableLogAnalytics, 'No'), not(equals(steps('core').platform.subscriptionOption, 'Single')))]",
                             "options": {
                                 "text": "Azure Landing Zones provides an integrated CI/CD pipeline via AzOps that can be used with either GitHub Actions or Azure DevOps pipelines, but requires a dedicated subscription for platform management in the previous step. Please add a subscription or continue without setting up the CI/CD integration.",
                                 "uri": "https://github.com/azure/azops-accelerator/wiki/introduction",
@@ -1033,7 +1049,7 @@
                             "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                             "options": {
                                 "icon": "Warning",
-                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for the setting \"Pre-stage management groups only\" under \"Azure core setup\"."
+                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select 'No (default)' for the setting 'Pre-stage management groups only' under 'Azure core setup'."
                             }
                         },
                         {
@@ -1832,7 +1848,7 @@
                             "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                             "options": {
                                 "icon": "Warning",
-                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for the setting \"Pre-stage management groups only\" under \"Azure core setup\"."
+                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select 'No (default)' for the setting 'Pre-stage management groups only' under 'Azure core setup'."
                             }
                         },
                         {
@@ -2044,7 +2060,7 @@
                             "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                             "options": {
                                 "icon": "Warning",
-                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select \"No (default)\" for the setting \"Pre-stage management groups only\" under \"Azure core setup\"."
+                                "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select 'No (default)' for the setting 'Pre-stage management groups only' under 'Azure core setup'."
                             }
                         },
                         {
@@ -2321,7 +2337,7 @@
                                     }
                                 ]
                             },
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]"
+                            "visible": "[equals(steps('management').monitoring.enableLogAnalytics,'Yes')]"
                         },
                         {
                             "name": "enableVmssMonitoring",
@@ -2345,7 +2361,7 @@
                                     }
                                 ]
                             },
-                            "visible": "[equals(steps('management').enableLogAnalytics,'Yes')]"
+                            "visible": "[equals(steps('management').monitoring.enableLogAnalytics,'Yes')]"
                         },
                         {
                             "name": "enableAksPolicy",
@@ -2695,31 +2711,31 @@
                 "preStageMgsOnly": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                 "platformSubscriptionId": "[if(steps('core').rootManagementGroup.preStageMgsOnly, 'placeholder', steps('core').singleSubscription.selector.subscriptionId)]",
                 "telemetryOptOut": "[steps('core').cuaSection.telemetryOptOut]",
-                "enableLogAnalytics": "[steps('management').enableLogAnalytics]",
-                "retentionInDays": "[string(steps('management').retentionInDays)]",
+                "enableLogAnalytics": "[steps('management').monitoring.enableLogAnalytics]",
+                "retentionInDays": "[string(steps('management').monitoring.retentionInDays)]",
                 "managementSubscriptionId": "[steps('management').esMgmtSubSection.esMgmtSub.subscriptionId]",
-                "enableAgentHealth": "[steps('management').enableAgentHealth]",
-                "enableChangeTracking": "[steps('management').enableChangeTracking]",
-                "enableUpdateMgmt": "[steps('management').enableUpdateMgmt]",
-                "enableActivityLog": "[steps('management').enableActivityLog]",
-                "enableVmInsights": "[steps('management').enableVmInsights]",
-                "enableServiceMap": "[steps('management').enableServiceMap]",
-                "enableSqlAssessment": "[steps('management').enableSqlAssessment]",
-                "enableSqlVulnerabilityAssessment": "[steps('management').enableSqlVulnerabilityAssessment]",
-                "enableSqlAdvancedThreatProtection": "[steps('management').enableSqlAdvancedThreatProtection]",
-                "enableAsc": "[steps('management').enableAsc]",
-                "emailContactAsc": "[steps('management').emailContactAsc]",
-                "enableAscForServers": "[steps('management').enableAscForServers]",
-                "enableAscForOssDb": "[steps('management').enableAscForOssDb]",
-                "enableAscForAppServices": "[steps('management').enableAscForAppServices]",
-                "enableAscForStorage": "[steps('management').enableAscForStorage]",
-                "enableAscForSql": "[steps('management').enableAscForSql]",
-                "enableAscForSqlOnVm": "[steps('management').enableAscForSqlOnVm]",
-                "enableAscForKeyVault": "[steps('management').enableAscForKeyVault]",
-                "enableAscForArm": "[steps('management').enableAscForArm]",
-                "enableAscForDns": "[steps('management').enableAscForDns]",
-                "enableAscForContainers": "[steps('management').enableAscForContainers]",
-                "enableSecuritySolution": "[steps('management').enableSecuritySolution]",
+                "enableAgentHealth": "[steps('management').monitoring.enableAgentHealth]",
+                "enableChangeTracking": "[steps('management').monitoring.enableChangeTracking]",
+                "enableUpdateMgmt": "[steps('management').monitoring.enableUpdateMgmt]",
+                "enableActivityLog": "[steps('management').monitoring.enableActivityLog]",
+                "enableVmInsights": "[steps('management').monitoring.enableVmInsights]",
+                "enableServiceMap": "[steps('management').monitoring.enableServiceMap]",
+                "enableSqlAssessment": "[steps('management').monitoring.enableSqlAssessment]",
+                "enableSqlVulnerabilityAssessment": "[steps('management').monitoring.enableSqlVulnerabilityAssessment]",
+                "enableSqlAdvancedThreatProtection": "[steps('management').monitoring.enableSqlAdvancedThreatProtection]",
+                "enableAsc": "[steps('management').security.enableAsc]",
+                "emailContactAsc": "[steps('management').security.emailContactAsc]",
+                "enableAscForServers": "[steps('management').security.enableAscForServers]",
+                "enableAscForOssDb": "[steps('management').security.enableAscForOssDb]",
+                "enableAscForAppServices": "[steps('management').security.enableAscForAppServices]",
+                "enableAscForStorage": "[steps('management').security.enableAscForStorage]",
+                "enableAscForSql": "[steps('management').security.enableAscForSql]",
+                "enableAscForSqlOnVm": "[steps('management').esecurity.nableAscForSqlOnVm]",
+                "enableAscForKeyVault": "[steps('management').security.enableAscForKeyVault]",
+                "enableAscForArm": "[steps('management').security.enableAscForArm]",
+                "enableAscForDns": "[steps('management').security.enableAscForDns]",
+                "enableAscForContainers": "[steps('management').security.enableAscForContainers]",
+                "enableSecuritySolution": "[steps('management').security.enableSecuritySolution]",
                 "enableAzOps": "[steps('automation').enableAzOps]",
                 "gitHubUserNameOrOrg": "[steps('automation').gitHubUserNameOrOrg]",
                 "repositoryName": "[steps('automation').repositoryName]",
