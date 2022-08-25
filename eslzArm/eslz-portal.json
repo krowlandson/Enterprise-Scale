@@ -925,7 +925,7 @@
                         {
                             "name": "info",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[or(not(empty(steps('management').esMgmtSubSection.esMgmtSub)), not(empty(steps('core').singleSubscription.selector)))]",
+                            "visible": "[and(not(steps('core').rootManagementGroup.preStageMgsOnly), or(not(empty(steps('management').esMgmtSubSection.esMgmtSub)), not(empty(steps('core').singleSubscription.selector))))]",
                             "options": {
                                 "text": "Azure Landing Zones provides an integrated CI/CD pipeline via AzOps that can be used with either GitHub Actions or Azure DevOps pipelines.",
                                 "uri": "https://github.com/azure/azops-accelerator/wiki/introduction",
@@ -933,9 +933,9 @@
                             }
                         },
                         {
-                            "name": "correction",
+                            "name": "noSubscriptionWarning",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[and(equals(steps('management').monitoring.enableLogAnalytics, 'No'), not(equals(steps('core').platform.subscriptionOption, 'Single')))]",
+                            "visible": "[and(not(steps('core').rootManagementGroup.preStageMgsOnly), empty(steps('management').esMgmtSubSection.esMgmtSub), empty(steps('core').singleSubscription.selector))]",
                             "options": {
                                 "text": "Azure Landing Zones provides an integrated CI/CD pipeline via AzOps that can be used with either GitHub Actions or Azure DevOps pipelines, but requires a dedicated subscription for platform management in the previous step. Please add a subscription or continue without setting up the CI/CD integration.",
                                 "uri": "https://github.com/azure/azops-accelerator/wiki/introduction",
