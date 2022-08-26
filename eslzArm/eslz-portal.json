@@ -1125,7 +1125,7 @@
                         {
                             "name": "multiPlatformConnectivitySub",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[not(equals(steps('core').platform.subscriptionOption, 'Single'))]",
+                            "visible": "[and(steps('core').rootManagementGroup.preStageMgsOnly,not(equals(steps('core').platform.subscriptionOption, 'Single')))]",
                             "options": {
                                 "text": "To enable network topology and connectivity, you must allocate a dedicated connectivity Subscription. Please note, this Subscription will be moved to the connectivity Management Group, and ARM will deploy the first hub virtual network for either a hub and spoke or Virtual WAN  network topology. Additional networking platform resources such as gateways or Azure Firewall can be deployed. We recommend using a new dedicated Subscription with no existing resources.",
                                 "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/define-an-azure-network-topology",
@@ -1135,7 +1135,7 @@
                         {
                             "name": "singlePlatformConnectivitySub",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]",
+                            "visible": "[and(steps('core').rootManagementGroup.preStageMgsOnly, equals(steps('core').platform.subscriptionOption, 'Single'))]",
                             "options": {
                                 "text": "To enable network topology and connectivity, you can select the preferred networking topology, and deploy this into the dedicated platform subscription. Additional networking platform resources such as gateways or Azure Firewall can also be deployed.",
                                 "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/define-an-azure-network-topology",
@@ -1168,7 +1168,7 @@
                                     }
                                 ]
                             },
-                            "visible": true
+                            "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]"
                         },
                         {
                             "name": "esNwSubSection",
@@ -1924,7 +1924,7 @@
                         {
                             "name": "multiPlatformIdentitySub",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[not(equals(steps('core').platform.subscriptionOption, 'Single'))]",
+                            "visible": "[and(not(steps('core').rootManagementGroup.preStageMgsOnly), not(equals(steps('core').platform.subscriptionOption, 'Single')))]",
                             "options": {
                                 "text": "To enable identity (AuthN/AuthZ) for workloads in landing zones, you must allocate an identity Subscription that is dedicated to host your Active Directory domain controllers. Please note, this Subscription will be moved to the identity Management Group, and ARM will assign the selected policies. We recommend using a new Subscription with no existing resources.",
                                 "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/identity-and-access-management",
@@ -1934,7 +1934,7 @@
                         {
                             "name": "singlePlatformIdentitySub",
                             "type": "Microsoft.Common.InfoBox",
-                            "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]",
+                            "visible": "[and(not(steps('core').rootManagementGroup.preStageMgsOnly), equals(steps('core').platform.subscriptionOption, 'Single'))]",
                             "options": {
                                 "text": "To enable identity (AuthN/AuthZ) for workloads in landing zones, it is recommended to assign specific policies to govern the virtual machines used for Active Directory domain controllers.",
                                 "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/identity-and-access-management",
@@ -1959,7 +1959,7 @@
                                     }
                                 ]
                             },
-                            "visible": true
+                            "visible": "[not(steps('core').rootManagementGroup.preStageMgsOnly)]"
                         },
                         {
                             "name": "esIdentitySubSection",
