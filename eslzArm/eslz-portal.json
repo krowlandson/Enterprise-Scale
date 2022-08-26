@@ -92,7 +92,7 @@
                                 {
                                     "name": "warning",
                                     "type": "Microsoft.Common.InfoBox",
-                                    "visible": "[not(equal(steps('basics').cloudEnvironment.selection, if(contains(steps('basics').resourceScope.location.name, 'china'), 'Azure China Cloud', if(contains(steps('basics').resourceScope.location.name, 'usgov'), 'Azure US Government', if(contains(steps('basics').resourceScope.location.name, 'usdod'), 'Azure US Government', 'Azure Cloud')))))]",
+                                    "visible": "[if(contains(steps('basics').resourceScope.location.name, 'china'), not(equal(steps('basics').cloudEnvironment.selection, 'AzureChinaCloud'), if(contains(steps('basics').resourceScope.location.name, 'usgov'), not(equal(steps('basics').cloudEnvironment.selection, 'AzureUSGovernment'), if(contains(steps('basics').resourceScope.location.name, 'usdod'), not(equal(steps('basics').cloudEnvironment.selection, 'AzureUSGovernment'), not(equal(steps('basics').cloudEnvironment.selection, 'AzureCloud'))))))]",
                                     "options": {
                                         "icon": "Warning",
                                         "text": "This value should be automatically set based on the list of available locations. Only change this if you believe the value to be incorrect or if you want to run a demo in another Cloud environment."
