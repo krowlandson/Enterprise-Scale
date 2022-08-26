@@ -422,9 +422,21 @@
                                     }
                                 },
                                 {
-                                    "type": "Microsoft.Common.SubscriptionSelector",
                                     "name": "esMgmtSub",
-                                    "label": "Management subscription"
+                                    "type": "Microsoft.Common.DropDown",
+                                    "label": "Management subscription (optional)",
+                                    "defaultValue": "",
+                                    "toolTip": "",
+                                    "multiselect": false,
+                                    "selectAll": false,
+                                    "filter": true,
+                                    "filterPlaceholder": "Filter subscriptions...",
+                                    "multiLine": true,
+                                    "visible": true,
+                                    "constraints": {
+                                        "allowedValues": "[map(filter(steps('basics').getSubscriptions.value, (sub) => equals(sub.state, 'Enabled')), (sub) => parse(concat('{\"label\":\"', sub.displayName, '\",\"description\":\"', sub.subscriptionId, '\",\"value\":\"', toLower(sub.subscriptionId), '\"}')) )]",
+                                        "required": false
+                                    }
                                 }
                             ],
                             "visible": "[and(not(steps('core').rootManagementGroup.preStageMgsOnly), not(equals(steps('core').platform.subscriptionOption, 'Single')))]"
