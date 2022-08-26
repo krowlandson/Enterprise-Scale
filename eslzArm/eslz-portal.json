@@ -2262,6 +2262,7 @@
                                             "name": "esLzConnectedSub",
                                             "type": "Microsoft.Common.DropDown",
                                             "label": "Landing zone subscription",
+                                            "defaultValue": [],
                                             "toolTip": "",
                                             "multiselect": false,
                                             "selectAll": false,
