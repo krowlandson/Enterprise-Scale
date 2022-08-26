@@ -2779,7 +2779,7 @@
                 "createNewRoot": "[steps('core').rootManagementGroup.createNewRoot]",
                 "parentManagementGroupId": "[coalesce(steps('core').rootManagementGroup.parentManagementGroupId, steps('basics').resourceScope.managementGroup.name)]",
                 "preStageMgsOnly": "[steps('core').rootManagementGroup.preStageMgsOnly]",
-                "platformSubscriptionId": "[if(steps('core').rootManagementGroup.preStageMgsOnly, 'placeholder', steps('core').singleSubscription.selector.subscriptionId)]",
+                "platformSubscriptionId": "[if(and(steps('core').rootManagementGroup.preStageMgsOnly, not(equals(steps('core').platform.subscriptionOption, 'Single'))), 'placeholder', steps('core').singleSubscription.selector.subscriptionId)]",
                 "telemetryOptOut": "[steps('core').cuaSection.telemetryOptOut]",
                 "enableLogAnalytics": "[steps('management').monitoring.enableLogAnalytics]",
                 "retentionInDays": "[string(steps('management').monitoring.retentionInDays)]",
