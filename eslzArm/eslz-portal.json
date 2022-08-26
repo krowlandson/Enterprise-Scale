@@ -10,10 +10,57 @@
                     "label": "Deployment settings",
                     "elements": [
                         {
+                            "name": "welcome",
+                            "type": "Microsoft.Common.Section",
+                            "label": "Azure landing zone accelerator",
+                            "elements": [
+                                {
+                                    "name": "welcomeMessage",
+                                    "type": "Microsoft.Common.TextBlock",
+                                    "visible": true,
+                                    "options": {
+                                        "text": "Welcome to the Azure landing zone accelerator.</br>This custom template will deploy the recommended base configuration based on the Azure landing zone conceptual architecture.",
+                                        "link": {
+                                            "label": "Learn more",
+                                            "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/landing-zone/#azure-landing-zone-conceptual-architecture"
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "instructions",
+                                    "type": "Microsoft.Common.TextBlock",
+                                    "visible": true,
+                                    "options": {
+                                        "text": "The management group selected below under 'Project details' will be used to run the base template deployment. Additional deployments will be created under Management Groups created by this template. Please ensure you have the required permissions to run deployments against the selected management group.",
+                                        "link": {
+                                            "label": "Learn more",
+                                            "uri": "https://docs.microsoft.com/azure/azure-resource-manager/templates/deploy-to-management-group?tabs=azure-cli"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "resourceScope",
+                            "type": "Microsoft.Common.ResourceScope"
+                        },
+                        {
                             "name": "cloudEnvironment",
                             "type": "Microsoft.Common.Section",
                             "label": "Select cloud environment",
                             "elements": [
+                                {
+                                    "name": "instructions",
+                                    "type": "Microsoft.Common.TextBlock",
+                                    "visible": true,
+                                    "options": {
+                                        "text": "The following dropdown is used to customize the available options in this template to reflect the features available in the target Cloud environment, and should be automatically set.",
+                                        "link": {
+                                            "label": "Learn more",
+                                            "uri": "https://docs.microsoft.com/cli/azure/manage-clouds-azure-cli"
+                                        }
+                                    }
+                                },
                                 {
                                     "name": "selection",
                                     "type": "Microsoft.Common.DropDown",
@@ -45,28 +92,13 @@
                                 {
                                     "name": "warning",
                                     "type": "Microsoft.Common.InfoBox",
-                                    "visible": true,
+                                    "visible": "[not(equal(steps('basics').cloudEnvironment.selection, if(contains(steps('basics').resourceScope.location.name, 'china'), 'Azure China Cloud', if(contains(steps('basics').resourceScope.location.name, 'usgov'), 'Azure US Government', if(contains(steps('basics').resourceScope.location.name, 'usdod'), 'Azure US Government', 'Azure Cloud')))))]",
                                     "options": {
                                         "icon": "Warning",
-                                        "text": "This value should be automatically set based on the list of available locations. Only change this if you believe the value to be incorrect.",
-                                        "uri": "https://docs.microsoft.com/cli/azure/manage-clouds-azure-cli"
+                                        "text": "This value should be automatically set based on the list of available locations. Only change this if you believe the value to be incorrect or if you want to run a demo in another Cloud environment."
                                     }
                                 }
                             ]
-                        },
-                        {
-                            "name": "mgSelectionMessage",
-                            "type": "Microsoft.Common.InfoBox",
-                            "visible": true,
-                            "options": {
-                                "icon": "Info",
-                                "text": "The management group selected below will be used to run the base template deployment. Additional deployments will be created under Management Groups created by this template. Please ensure you have the required permissions to run deployments against the selected management group.",
-                                "uri": "https://docs.microsoft.com/azure/azure-resource-manager/templates/deploy-to-management-group?tabs=azure-cli"
-                            }
-                        },
-                        {
-                            "name": "resourceScope",
-                            "type": "Microsoft.Common.ResourceScope"
                         },
                         {
                             "name": "getManagementGroups",
@@ -203,7 +235,7 @@
                                     "type": "Microsoft.Common.TextBlock",
                                     "visible": true,
                                     "options": {
-                                        "text": "For environments with limited permissions, you may receive a validation error indicating missing '' permissions at different management group scopes. To work-around this, use the option below to pre-stage the management group hierarchy before returning to this custom template to run a full deployment of your Azure landing zone."
+                                        "text": "For environments with limited permissions, you may receive a validation error indicating missing 'Microsoft.Resources/deployments/write' permissions at different management group scopes. To work-around this, use the option below to pre-stage the management group hierarchy before returning to this custom template to run a full deployment of your Azure landing zone."
                                     }
                                 },
                                 {
