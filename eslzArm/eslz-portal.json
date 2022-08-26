@@ -322,9 +322,20 @@
                                 },
                                 {
                                     "name": "selector",
-                                    "type": "Microsoft.Common.SubscriptionSelector",
+                                    "type": "Microsoft.Common.DropDown",
+                                    "label": "Platform subscription",
+                                    "defaultValue": [],
+                                    "toolTip": "",
+                                    "multiselect": false,
+                                    "selectAll": false,
+                                    "filter": true,
+                                    "filterPlaceholder": "Filter subscriptions...",
+                                    "multiLine": true,
                                     "visible": true,
-                                    "label": "Single platform subscription"
+                                    "constraints": {
+                                        "allowedValues": "[map(filter(steps('basics').getSubscriptions.value, (sub) => equals(sub.state, 'Enabled')), (sub) => parse(concat('{\"label\":\"', sub.displayName, '\",\"description\":\"', sub.subscriptionId, '\",\"value\":\"', toLower(sub.subscriptionId), '\"}')) )]",
+                                        "required": true
+                                    }
                                 }
                             ],
                             "visible": "[and(not(steps('core').rootManagementGroup.preStageMgsOnly), equals(steps('core').platform.subscriptionOption, 'Single'))]"
@@ -424,8 +435,8 @@
                                 {
                                     "name": "esMgmtSub",
                                     "type": "Microsoft.Common.DropDown",
-                                    "label": "Management subscription (optional)",
-                                    "defaultValue": "",
+                                    "label": "Management subscription",
+                                    "defaultValue": [],
                                     "toolTip": "",
                                     "multiselect": false,
                                     "selectAll": false,
@@ -1197,9 +1208,21 @@
                                     }
                                 },
                                 {
-                                    "type": "Microsoft.Common.SubscriptionSelector",
                                     "name": "esNwSub",
-                                    "label": "Connectivity subscription"
+                                    "type": "Microsoft.Common.DropDown",
+                                    "label": "Connectivity subscription",
+                                    "defaultValue": [],
+                                    "toolTip": "",
+                                    "multiselect": false,
+                                    "selectAll": false,
+                                    "filter": true,
+                                    "filterPlaceholder": "Filter subscriptions...",
+                                    "multiLine": true,
+                                    "visible": true,
+                                    "constraints": {
+                                        "allowedValues": "[map(filter(steps('basics').getSubscriptions.value, (sub) => equals(sub.state, 'Enabled')), (sub) => parse(concat('{\"label\":\"', sub.displayName, '\",\"description\":\"', sub.subscriptionId, '\",\"value\":\"', toLower(sub.subscriptionId), '\"}')) )]",
+                                        "required": false
+                                    }
                                 }
                             ],
                             "visible": "[and(not(equals(steps('connectivity').enableHub, 'No')), not(equals(steps('core').platform.subscriptionOption, 'Single')))]"
@@ -1988,9 +2011,21 @@
                                     }
                                 },
                                 {
-                                    "type": "Microsoft.Common.SubscriptionSelector",
                                     "name": "esIdentitySub",
-                                    "label": "Management subscription"
+                                    "type": "Microsoft.Common.DropDown",
+                                    "label": "Identity subscription",
+                                    "defaultValue": [],
+                                    "toolTip": "",
+                                    "multiselect": false,
+                                    "selectAll": false,
+                                    "filter": true,
+                                    "filterPlaceholder": "Filter subscriptions...",
+                                    "multiLine": true,
+                                    "visible": true,
+                                    "constraints": {
+                                        "allowedValues": "[map(filter(steps('basics').getSubscriptions.value, (sub) => equals(sub.state, 'Enabled')), (sub) => parse(concat('{\"label\":\"', sub.displayName, '\",\"description\":\"', sub.subscriptionId, '\",\"value\":\"', toLower(sub.subscriptionId), '\"}')) )]",
+                                        "required": false
+                                    }
                                 }
                             ],
                             "visible": "[and(equals(steps('identity').esIdentity,'Yes'), not(equals(steps('core').platform.subscriptionOption, 'Single')))]"
