@@ -12,14 +12,14 @@
                         {
                             "name": "welcome",
                             "type": "Microsoft.Common.Section",
-                            "label": "Azure landing zone accelerator",
+                            "label": "Welcome to the Azure landing zone accelerator",
                             "elements": [
                                 {
                                     "name": "welcomeMessage",
                                     "type": "Microsoft.Common.TextBlock",
                                     "visible": true,
                                     "options": {
-                                        "text": "Welcome to the Azure landing zone accelerator.</br>This custom template will deploy the recommended base configuration based on the Azure landing zone conceptual architecture.",
+                                        "text": "This custom template will deploy the recommended base configuration based on the Azure landing zone conceptual architecture.",
                                         "link": {
                                             "label": "Learn more",
                                             "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/landing-zone/#azure-landing-zone-conceptual-architecture"
