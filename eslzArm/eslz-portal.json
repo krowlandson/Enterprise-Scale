@@ -2242,9 +2242,9 @@
                                             "selectAll": false,
                                             "filter": true,
                                             "filterPlaceholder": "Filter subscriptions...",
-                                            "multiLine": false,
+                                            "multiLine": true,
                                             "constraints": {
-                                                "allowedValues": "[map(steps('basics').getSubscriptions.value, (sub) => parse(concat('{\"label\":\"', sub.displayName, '\",\"description\":\"', sub.subscriptionId, '\",\"value\":\"', toLower(sub.subscriptionId), '\"}')) )]",
+                                                "allowedValues": "[map(filter(steps('basics').getSubscriptions.value, (sub) => equals(sub.state, 'Enabled')), (sub) => parse(concat('{\"label\":\"', sub.displayName, '\",\"description\":\"', sub.subscriptionId, '\",\"value\":\"', toLower(sub.subscriptionId), '\"}')) )]",
                                                 "required": false
                                             }
                                         }
