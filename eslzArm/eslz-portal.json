@@ -1,5 +1,5 @@
 {
-    "$schema": "<relative path to createFormUI.schema.json>",
+    "$schema": "https://schema.management.azure.com/schemas/2021-09-09/uiFormDefinition.schema.json#",
     "view": {
         "kind": "Form",
         "properties": {
@@ -94,7 +94,7 @@
                                     "type": "Microsoft.Common.InfoBox",
                                     "visible": true,
                                     "options": {
-                                        "icon": "Warning",
+                                        "style": "Warning",
                                         "text": "This value should be automatically set based on the list of available locations. Only change this if you believe the value to be incorrect or if you want to run a demo in another Cloud environment."
                                     }
                                 }
@@ -129,11 +129,6 @@
                 {
                     "name": "core",
                     "label": "Azure core setup",
-                    "subLabel": {
-                        "preValidation": "Provide a company prefix for the management group structure that will be created.",
-                        "postValidation": "Done"
-                    },
-                    "bladeTitle": "ALZ - Core Settings",
                     "elements": [
                         {
                             "name": "organization",
@@ -303,7 +298,7 @@
                             "type": "Microsoft.Common.InfoBox",
                             "visible": "[equals(steps('core').platform.subscriptionOption, 'Single')]",
                             "options": {
-                                "icon": "Warning",
+                                "style": "Warning",
                                 "text": "Dedicated subscriptions are recommended for the different platform resource categories to ensure scale, sustainability, and segregation of duties. A single subscription can be used for proof of concepts, or by smaller organizations.",
                                 "uri": "https://docs.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/management-group-and-subscription-organization"
                             }
@@ -311,6 +306,7 @@
                         {
                             "name": "singleSubscription",
                             "type": "Microsoft.Common.Section",
+                            "label": "Platform subscription",
                             "elements": [
                                 {
                                     "name": "singleSubText",
@@ -324,7 +320,7 @@
                                     "name": "selector",
                                     "type": "Microsoft.Common.DropDown",
                                     "label": "Platform subscription",
-                                    "defaultValue": [],
+                                    "defaultValue": "[parse('[]')]",
                                     "toolTip": "",
                                     "multiselect": false,
                                     "selectAll": false,
@@ -383,18 +379,13 @@
                 {
                     "name": "management",
                     "label": "Platform management, security, and governance",
-                    "subLabel": {
-                        "preValidation": "",
-                        "postValidation": ""
-                    },
-                    "bladeTitle": "ALZ - Management Settings",
                     "elements": [
                         {
                             "name": "preStageMgsOnlyWarning",
                             "type": "Microsoft.Common.InfoBox",
                             "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                             "options": {
-                                "icon": "Warning",
+                                "style": "Warning",
                                 "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select 'No (default)' for the setting 'Pre-stage management groups only' under 'Azure core setup'."
                             }
                         },
@@ -436,7 +427,7 @@
                                     "name": "esMgmtSub",
                                     "type": "Microsoft.Common.DropDown",
                                     "label": "Management subscription",
-                                    "defaultValue": [],
+                                    "defaultValue": "[parse('[]')]",
                                     "toolTip": "",
                                     "multiselect": false,
                                     "selectAll": false,
@@ -965,15 +956,13 @@
                 {
                     "name": "automation",
                     "label": "Platform DevOps and automation",
-                    "subLabel": {},
-                    "bladeTitle": "ALZ - Automation Settings",
                     "elements": [
                         {
                             "name": "preStageMgsOnlyWarning",
                             "type": "Microsoft.Common.InfoBox",
                             "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                             "options": {
-                                "icon": "Warning",
+                                "style": "Warning",
                                 "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select 'No (default)' for the setting 'Pre-stage management groups only' under 'Azure core setup'."
                             }
                         },
@@ -1130,18 +1119,13 @@
                 {
                     "name": "connectivity",
                     "label": "Network topology and connectivity",
-                    "subLabel": {
-                        "preValidation": "",
-                        "postValidation": ""
-                    },
-                    "bladeTitle": "ALZ - Connectivity Settings",
                     "elements": [
                         {
                             "name": "preStageMgsOnlyWarning",
                             "type": "Microsoft.Common.InfoBox",
                             "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                             "options": {
-                                "icon": "Warning",
+                                "style": "Warning",
                                 "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select 'No (default)' for the setting 'Pre-stage management groups only' under 'Azure core setup'."
                             }
                         },
@@ -1211,7 +1195,7 @@
                                     "name": "esNwSub",
                                     "type": "Microsoft.Common.DropDown",
                                     "label": "Connectivity subscription",
-                                    "defaultValue": [],
+                                    "defaultValue": "[parse('[]')]",
                                     "toolTip": "",
                                     "multiselect": false,
                                     "selectAll": false,
@@ -1941,18 +1925,13 @@
                 {
                     "name": "identity",
                     "label": "Identity",
-                    "subLabel": {
-                        "preValidation": "",
-                        "postValidation": ""
-                    },
-                    "bladeTitle": "ALZ - Identity Settings",
                     "elements": [
                         {
                             "name": "preStageMgsOnlyWarning",
                             "type": "Microsoft.Common.InfoBox",
                             "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                             "options": {
-                                "icon": "Warning",
+                                "style": "Warning",
                                 "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select 'No (default)' for the setting 'Pre-stage management groups only' under 'Azure core setup'."
                             }
                         },
@@ -2014,7 +1993,7 @@
                                     "name": "esIdentitySub",
                                     "type": "Microsoft.Common.DropDown",
                                     "label": "Identity subscription",
-                                    "defaultValue": [],
+                                    "defaultValue": "[parse('[]')]",
                                     "toolTip": "",
                                     "multiselect": false,
                                     "selectAll": false,
@@ -2165,18 +2144,13 @@
                 {
                     "name": "landingZones",
                     "label": "Landing zones configuration",
-                    "subLabel": {
-                        "preValidation": "",
-                        "postValidation": ""
-                    },
-                    "bladeTitle": "ALZ - Landing Zones Settings",
                     "elements": [
                         {
                             "name": "preStageMgsOnlyWarning",
                             "type": "Microsoft.Common.InfoBox",
                             "visible": "[steps('core').rootManagementGroup.preStageMgsOnly]",
                             "options": {
-                                "icon": "Warning",
+                                "style": "Warning",
                                 "text": "This section has been disabled as a previous option was selected to pre-stage management groups only. To re-enable this section, please select 'No (default)' for the setting 'Pre-stage management groups only' under 'Azure core setup'."
                             }
                         },
@@ -2226,7 +2200,7 @@
                             "name": "esCorpLzSub",
                             "type": "Microsoft.Common.DropDown",
                             "label": "Corp landing zone subscriptions (optional)",
-                            "defaultValue": [],
+                            "defaultValue": "[parse('[]')]",
                             "toolTip": "",
                             "multiselect": true,
                             "selectAll": true,
@@ -2262,7 +2236,7 @@
                                             "name": "esLzConnectedSub",
                                             "type": "Microsoft.Common.DropDown",
                                             "label": "Landing zone subscription",
-                                            "defaultValue": [],
+                                            "defaultValue": "[parse('[]')]",
                                             "toolTip": "",
                                             "multiselect": false,
                                             "selectAll": false,
@@ -2312,7 +2286,7 @@
                             "name": "esOnlineLzSub",
                             "type": "Microsoft.Common.DropDown",
                             "label": "Online landing zone subscriptions (optional)",
-                            "defaultValue": [],
+                            "defaultValue": "[parse('[]')]",
                             "toolTip": "",
                             "multiselect": true,
                             "selectAll": true,
