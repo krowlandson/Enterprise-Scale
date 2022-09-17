@@ -104,8 +104,11 @@
                             "name": "getManagementGroups",
                             "type": "Microsoft.Solutions.ArmApiControl",
                             "request": {
-                                "method": "GET",
-                                "path": "providers/Microsoft.Management/managementGroups?api-version=2021-04-01"
+                                "method": "POST",
+                                "path": "providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01",
+                                "body": {
+                                    "query": "ResourceContainers | where type =~ 'microsoft.management/managementgroups' | project label=tostring(properties.displayName), description=name, value=name | order by label asc"
+                                }
                             }
                         },
                         {
@@ -115,7 +118,7 @@
                                 "method": "POST",
                                 "path": "providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01",
                                 "body": {
-                                    "query": "ResourceContainers | where type =~ 'microsoft.resources/subscriptions' | where properties.state =~ 'enabled' | project label=name, description=subscriptionId, value=subscriptionId | order by label asc"
+                                    "query": "ResourceContainers | where type =~ 'microsoft.resources/subscriptions' | where properties.state =~ 'enabled' | project label=tostring(name), description=subscriptionId, value=subscriptionId | order by label asc"
                                 }
                             }
                         },
@@ -225,7 +228,7 @@
                                     "multiLine": true,
                                     "visible": "[steps('core').rootManagementGroup.createNewRoot]",
                                     "constraints": {
-                                        "allowedValues": "[map(steps('basics').getManagementGroups.value, (mgs) => parse(concat('{\"label\":\"', mgs.properties.displayName, '\",\"description\":\"', mgs.name, '\",\"value\":\"', mgs.name, '\"}')))]"
+                                        "allowedValues": "[steps('basics').getManagementGroups.data]"
                                     }
                                 },
                                 {
